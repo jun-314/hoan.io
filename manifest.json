@@ -1,0 +1,26 @@
+{
+  "name": "保安管理 点検記録",
+  "short_name": "点検記録",
+  "description": "高圧受電設備の点検記録と判定（オフライン動作）",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#1769d6",
+  "lang": "ja",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='96' fill='%231769d6'/%3E%3Cpath d='M286 64 150 288h86l-24 160 148-232h-92z' fill='%23ffffff'/%3E%3C/svg%3E",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' fill='%231769d6'/%3E%3Cpath d='M286 96 166 288h74l-20 128 126-198h-78z' fill='%23ffffff'/%3E%3C/svg%3E",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

@@ -1,0 +1,1338 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1769d6">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="点検記録">
+<title>保安管理 点検記録</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' fill='%231769d6'/%3E%3Cpath d='M286 96 166 288h74l-20 128 126-198h-78z' fill='%23ffffff'/%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#f2f5f9; --card:#ffffff; --line:#dde4ed; --line2:#eef2f7;
+  --text:#1b2430; --muted:#657186; --accent:#1769d6; --accent-weak:#e8f0fc;
+  --ok-bg:#e6f6ea; --ok-fg:#166534; --ok-line:#b7e2c3;
+  --warn-bg:#fff6da; --warn-fg:#8a5a00; --warn-line:#f0dca4;
+  --ng-bg:#fdeaea; --ng-fg:#b3261e; --ng-line:#f3c2bf;
+  --r:10px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,"Segoe UI",Roboto,sans-serif;
+  background:var(--bg); color:var(--text); font-size:16px; line-height:1.55;
+  -webkit-text-size-adjust:100%;
+}
+#app{max-width:680px;margin:0 auto;padding:0 0 96px}
+/* ---------- app bar ---------- */
+.bar{
+  position:sticky;top:0;z-index:30;background:var(--accent);color:#fff;
+  padding:calc(env(safe-area-inset-top) + 10px) 12px 10px;
+  display:flex;align-items:center;gap:8px;box-shadow:0 1px 3px rgba(16,32,60,.15);
+}
+.bar h1{font-size:17px;margin:0;font-weight:600;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar .iconbtn{
+  min-width:44px;min-height:44px;border:0;background:rgba(255,255,255,.14);color:#fff;
+  border-radius:var(--r);font-size:15px;font-weight:600;cursor:pointer;padding:0 10px;
+}
+.bar .iconbtn:active{background:rgba(255,255,255,.28)}
+/* ---------- layout ---------- */
+.wrap{padding:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px;margin:0 0 12px}
+.card.tight{padding:10px}
+.card h2{font-size:15px;margin:0 0 10px;font-weight:700}
+.card h3{font-size:14px;margin:14px 0 8px;font-weight:700;color:#2c3a4d}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row>*{flex:1 1 0;min-width:0}
+.field{margin:0 0 10px}
+.field label,.lbl{display:block;font-size:12px;color:var(--muted);margin:0 0 4px;font-weight:600}
+.in,select,textarea{
+  width:100%;min-height:44px;padding:10px 12px;border:1px solid var(--line);border-radius:var(--r);
+  background:#fff;color:var(--text);font-size:16px;font-family:inherit;
+}
+select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,#8794a6 50%),linear-gradient(135deg,#8794a6 50%,transparent 50%);
+  background-position:calc(100% - 18px) 20px,calc(100% - 12px) 20px;background-size:6px 6px,6px 6px;background-repeat:no-repeat;padding-right:34px}
+textarea{min-height:120px;line-height:1.6}
+.in:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:var(--accent)}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  min-height:44px;padding:0 16px;border-radius:var(--r);border:1px solid var(--line);
+  background:#fff;color:var(--text);font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;
+}
+.btn:active{background:var(--line2)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.ghost{background:var(--accent-weak);border-color:#cfe0f8;color:#12508f}
+.btn.sm{min-height:44px;padding:0 12px;font-size:14px}
+.btn.wide{width:100%}
+.btn.danger{color:var(--ng-fg);border-color:var(--ng-line);background:#fff}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap}
+.btnrow>.btn{flex:1 1 auto}
+.muted{color:var(--muted);font-size:13px}
+.small{font-size:12px}
+.hr{height:1px;background:var(--line2);margin:12px 0}
+/* ---------- badge ---------- */
+.badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:13px;font-weight:700;border:1px solid transparent;white-space:nowrap}
+.badge.ok{background:var(--ok-bg);color:var(--ok-fg);border-color:var(--ok-line)}
+.badge.warn{background:var(--warn-bg);color:var(--warn-fg);border-color:var(--warn-line)}
+.badge.ng{background:var(--ng-bg);color:var(--ng-fg);border-color:var(--ng-line)}
+.badge.na{background:#eef2f7;color:#5a6779;border-color:#dde4ed}
+/* ---------- notice ---------- */
+.notice{background:#fbfcfe;border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:8px;padding:10px 12px;font-size:13px;margin:0 0 12px}
+.notice b{font-weight:700}
+.notice ul{margin:6px 0 0;padding-left:18px}
+.notice li{margin:2px 0}
+/* ---------- tabs ---------- */
+.tabs{display:flex;gap:6px;overflow-x:auto;padding:10px 12px 0;position:sticky;top:calc(env(safe-area-inset-top) + 60px);background:var(--bg);z-index:20;-webkit-overflow-scrolling:touch}
+.tabs::-webkit-scrollbar{display:none}
+.tab{
+  flex:0 0 auto;min-height:44px;padding:0 14px;display:flex;align-items:center;
+  border:1px solid var(--line);border-radius:999px;background:#fff;color:#42506a;
+  font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit;
+}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+/* ---------- list ---------- */
+.site{display:block;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px;margin:0 0 10px;cursor:pointer;font-family:inherit;font-size:16px;color:inherit}
+.site .t{font-weight:700;font-size:16px}
+.site .m{font-size:12.5px;color:var(--muted);margin-top:2px}
+.pbar{height:6px;background:var(--line2);border-radius:999px;overflow:hidden;margin-top:8px}
+.pbar>i{display:block;height:100%;background:var(--accent)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.chip{font-size:11.5px;padding:2px 8px;border-radius:999px;background:#eef2f7;color:#5a6779;border:1px solid #dde4ed}
+.chip.todo{background:var(--ng-bg);color:var(--ng-fg);border-color:var(--ng-line)}
+.chip.done{background:var(--ok-bg);color:var(--ok-fg);border-color:var(--ok-line)}
+/* ---------- measurement row ---------- */
+.item{border:1px solid var(--line);border-radius:var(--r);padding:10px;margin:0 0 10px;background:#fff}
+.item>.head{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.item>.head .name{flex:1}
+.del{min-width:44px;min-height:44px;border:1px solid var(--line);background:#fff;border-radius:var(--r);color:var(--ng-fg);font-size:18px;cursor:pointer;line-height:1}
+.jslot{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px;color:var(--muted);min-height:30px}
+.jslot .ref{color:var(--muted)}
+.prev{font-size:12px;color:#8b95a6}
+.check{display:flex;align-items:center;gap:10px;min-height:44px;font-size:14px;cursor:pointer;user-select:none}
+.check input{width:22px;height:22px;flex:0 0 auto;accent-color:var(--accent)}
+.mrow{display:grid;grid-template-columns:1fr;gap:8px;margin:0 0 10px}
+.mline{border:1px solid var(--line2);border-radius:8px;padding:8px;background:#fbfcfe}
+.mline .t{font-size:13px;font-weight:700;margin-bottom:6px}
+.ph{display:flex;gap:8px;align-items:center;margin:0 0 6px}
+.ph .pl{flex:0 0 42px;font-size:13px;font-weight:700;color:#42506a}
+.ph .in{flex:1}
+.unit{flex:0 0 92px}
+/* ---------- reference ---------- */
+details.ref{background:#fff;border:1px solid var(--line);border-radius:var(--r);margin:0 0 10px;overflow:hidden}
+details.ref>summary{min-height:52px;display:flex;align-items:center;padding:0 12px;font-weight:700;font-size:15px;cursor:pointer;list-style:none}
+details.ref>summary::-webkit-details-marker{display:none}
+details.ref>summary::after{content:"＋";margin-left:auto;color:var(--accent);font-weight:700}
+details.ref[open]>summary::after{content:"−"}
+details.ref .body{padding:0 12px 12px;font-size:14px}
+details.ref .body p{margin:8px 0}
+details.ref .body ul{margin:8px 0;padding-left:20px}
+details.ref .body li{margin:4px 0}
+.tbl{width:100%;border-collapse:collapse;font-size:13px;margin:8px 0}
+.tbl th,.tbl td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+.tbl th{background:#f5f8fc;font-weight:700;white-space:nowrap}
+.warnbox{border:1px solid var(--ng-line);background:var(--ng-bg);color:#7f2019;border-radius:8px;padding:10px;font-size:13px;margin:8px 0}
+.svgwrap{overflow-x:auto;margin:8px 0;border:1px solid var(--line);border-radius:8px;background:#fff}
+.svgwrap svg{display:block;min-width:320px}
+/* ---------- bottom nav ---------- */
+.nav{
+  position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;background:#fff;border-top:1px solid var(--line);
+  padding-bottom:env(safe-area-inset-bottom);
+}
+.nav button{
+  flex:1;min-height:56px;border:0;background:transparent;color:#6b7686;font-size:11.5px;font-weight:600;
+  cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+}
+.nav button .ic{font-size:19px;line-height:1}
+.nav button[aria-current="page"]{color:var(--accent)}
+.fab{position:fixed;right:16px;bottom:calc(72px + env(safe-area-inset-bottom));z-index:41;
+  min-height:52px;padding:0 20px;border-radius:999px;border:0;background:var(--accent);color:#fff;
+  font-size:15px;font-weight:700;box-shadow:0 3px 10px rgba(23,105,214,.35);cursor:pointer;font-family:inherit}
+/* ---------- modal ---------- */
+.mask{position:fixed;inset:0;background:rgba(16,26,40,.45);z-index:60;display:flex;align-items:flex-end;justify-content:center}
+.modal{background:#fff;width:100%;max-width:680px;border-radius:14px 14px 0 0;padding:16px;max-height:88vh;overflow:auto;
+  padding-bottom:calc(16px + env(safe-area-inset-bottom))}
+.modal h2{margin:0 0 12px;font-size:17px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(80px + env(safe-area-inset-bottom));
+  background:#1b2430;color:#fff;padding:10px 16px;border-radius:999px;font-size:14px;z-index:80;opacity:0;transition:opacity .18s;pointer-events:none}
+.toast.on{opacity:.96}
+.empty{text-align:center;color:var(--muted);padding:40px 16px;font-size:14px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+/* =========================================================================
+   1. 判定基準（criteria）— 基準改訂はここだけ直せば全画面に反映される
+   ========================================================================= */
+var CRITERIA = {
+  ground: {
+    A: 10, C: 10, D: 100,
+    fastBreak: 500,           // C種/D種: 0.5秒以内に自動遮断する装置があれば緩和
+    aux: 1000,                // 補助極（判定はしないが目安）
+    bBases: { "原則（2秒超 / 制限なし）": 150, "1秒超2秒以内で遮断": 300, "1秒以内で遮断": 600 },
+    groundVoltageMax: 10,     // 測定前に確認すべき地電圧
+    marginRatio: 0.8          // 基準値の80%を超えたら「余裕なし」と注記（判定は変えない）
+  },
+  hv: {
+    cableG: { ok: 10, warn: 1 },        // ケーブル絶縁体 G方式 [GΩ]
+    cableE: { ok: 5, warn: 0.1 },       // ケーブル絶縁体 E方式 [GΩ]（要注意下限は社内運用値）
+    sheathE_MO: 1,                      // ケーブルシース E方式 [MΩ]
+    busE: { ok: 5, ng: 0.1, weakRatio: 3 } // 母線・機器 E方式 [GΩ] と弱点比
+  },
+  relay: {
+    OCR:  { limTol: 10, instTol: 15, testPct: 200, timeTolDefault: 10, instTime: { "連動": 0.1, "単体": 0.05 } },
+    GR:   { iTol: 10, vTol: 25, testPct: 130, inertiaPct: 400, inertiaSec: 0.05,
+            opTime: { "単体": [0.10, 0.30], "連動": [0.10, 0.40] }, maxSensAngle: 45 },
+    OVR:  { vTol: 5, resetMinPct: 95,  tTol: 10, stepPct: 120 },
+    UVR:  { vTol: 5, resetMaxPct: 105, tTol: 10, stepPct: 70 },
+    OVGR: { vTol: 5, resetMinPct: 95,  tTol: 5,  stepPct: 150 },
+    LGR:  { typicalSet: 800, actualFrom: 520 }
+  },
+  lv: {
+    classes: { "150V以下": 0.1, "150V超300V以下": 0.2, "300V超": 0.4 }, // [MΩ]
+    leakMax: 1.0   // 低圧電路の漏えい電流 [mA]
+  }
+};
+
+/* =========================================================================
+   2. 保存 / 汎用ユーティリティ
+   ========================================================================= */
+var KEY = "hoan.sites.v1";
+var db = { sites: [] };
+var ui = { screen: "home", siteId: null, tab: "ground", q: "", refJump: null };
+
+function load() {
+  try {
+    var raw = localStorage.getItem(KEY);
+    if (raw) { var o = JSON.parse(raw); if (o && Array.isArray(o.sites)) db = o; }
+  } catch (e) { console.warn("load失敗", e); }
+}
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify(db)); }
+  catch (e) { alert("保存に失敗しました（容量超過の可能性）: " + e.message); }
+}
+function uid() { return Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4); }
+function today() { var d = new Date(), p = function (n) { return (n < 10 ? "0" : "") + n; };
+  return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()); }
+function num(v) { if (v === undefined || v === null) return NaN; var s = String(v).trim(); if (s === "") return NaN; return Number(s); }
+function has(v) { return !isNaN(num(v)); }
+function fmt(n, d) { if (n === null || n === undefined || isNaN(n)) return "—"; if (d === undefined) d = 2;
+  var s = Number(n).toFixed(d); if (s.indexOf(".") >= 0) s = s.replace(/0+$/, "").replace(/\.$/, ""); return s; }
+function esc(s) { return String(s === undefined || s === null ? "" : s)
+  .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+function toast(m) { var t = document.getElementById("toast"); t.textContent = m; t.classList.add("on");
+  clearTimeout(t._h); t._h = setTimeout(function () { t.classList.remove("on"); }, 1800); }
+function badge(s) {
+  var map = { ok: ["ok", "良"], warn: ["warn", "要注意"], ng: ["ng", "不良"], na: ["na", "—"] };
+  var m = map[s] || map.na; return '<span class="badge ' + m[0] + '">' + m[1] + "</span>";
+}
+function rangeText(a, b, u, d) { return fmt(a, d) + " 〜 " + fmt(b, d) + (u || ""); }
+function inRange(v, a, b) { return v >= a - 1e-12 && v <= b + 1e-12; }
+function judgeRange(v, a, b) { if (isNaN(v) || isNaN(a) || isNaN(b)) return "na"; return inRange(v, a, b) ? "ok" : "ng"; }
+function pick(o, path) { var p = path.split("."), c = o; for (var i = 0; i < p.length; i++) { if (c == null) return undefined; c = c[p[i]]; } return c; }
+function put(o, path, val) { var p = path.split("."), c = o;
+  for (var i = 0; i < p.length - 1; i++) { if (typeof c[p[i]] !== "object" || c[p[i]] === null) c[p[i]] = {}; c = c[p[i]]; }
+  c[p[p.length - 1]] = val; }
+
+/* =========================================================================
+   3. データモデル
+   ========================================================================= */
+var GROUND_KINDS = [
+  { k: "A", label: "A種" }, { k: "B", label: "B種" }, { k: "C", label: "C種" }, { k: "D", label: "D種" },
+  { k: "PAS", label: "PAS（A種扱い）" }, { k: "STEEL", label: "鉄骨（参考）" }, { k: "LA", label: "LA避雷器（A種扱い）" },
+  { k: "AUXP", label: "補助極P（参考）" }, { k: "AUXC", label: "補助極C（参考）" }
+];
+var GROUND_TEMPLATE = [
+  { name: "A種（LA・機器外箱）", kind: "A" },
+  { name: "B種（変圧器中性点）", kind: "B" },
+  { name: "D種（低圧機器）", kind: "D" },
+  { name: "PAS", kind: "PAS" }
+];
+var SITE_TYPES = ["月次", "年次", "竣工"];
+var CATS = { ground: "接地抵抗", hv: "高圧絶縁", relay: "継電器", lv: "低圧絶縁・漏洩", memo: "自由メモ" };
+var TEMPLATES = { "月次": ["lv", "memo"], "年次": ["ground", "hv", "relay", "lv"], "竣工": ["ground", "hv", "relay", "lv", "memo"] };
+
+function newSite(name) {
+  return {
+    id: uid(), name: name || "", voltage: "6600V", date: today(), type: "年次",
+    created: Date.now(),
+    ground: [], hv: [], relays: [], lv: [], bClamp: { io: "", igr: "", note: "" }, memo: ""
+  };
+}
+function site() { for (var i = 0; i < db.sites.length; i++) if (db.sites[i].id === ui.siteId) return db.sites[i]; return null; }
+function sortedSites() {
+  return db.sites.slice().sort(function (a, b) {
+    var d = String(b.date || "").localeCompare(String(a.date || "")); if (d !== 0) return d;
+    return (b.created || 0) - (a.created || 0);
+  });
+}
+function prevSite(s) {
+  var c = db.sites.filter(function (x) {
+    return x.id !== s.id && x.name && x.name === s.name && x.date && (!s.date || x.date < s.date);
+  }).sort(function (a, b) { return String(b.date).localeCompare(String(a.date)); });
+  return c[0] || null;
+}
+
+/* ---- 進捗（チェックリスト） ---- */
+function catFilled(s, c) {
+  if (c === "ground") return s.ground.some(function (r) { return has(r.value); });
+  if (c === "hv") return s.hv.some(function (r) { return has(r.value); });
+  if (c === "relay") return s.relays.length > 0;
+  if (c === "lv") return s.lv.some(function (r) { return has(r.ir) || has(r.leak); }) || has(s.bClamp && s.bClamp.io);
+  if (c === "memo") return !!(s.memo && s.memo.trim());
+  return false;
+}
+function progress(s) {
+  var req = TEMPLATES[s.type] || TEMPLATES["年次"];
+  var done = req.filter(function (c) { return catFilled(s, c); });
+  return { req: req, done: done, pct: req.length ? Math.round(done.length / req.length * 100) : 0 };
+}
+
+/* =========================================================================
+   4. 判定ロジック
+   ========================================================================= */
+/* ---- 4.1 接地抵抗 ---- */
+function bLimit(r) {
+  if (has(r.bManual)) return num(r.bManual);
+  var base = num(r.bBase), ig = num(r.bIg);
+  if (!isNaN(base) && !isNaN(ig) && ig > 0) return base / ig;
+  return NaN;
+}
+function judgeGround(r) {
+  var v = num(r.value), k = r.kind, limit = NaN, ref = "";
+  if (k === "STEEL") return { s: "na", ref: "判定なし（参考値として記録）" };
+  if (k === "AUXP" || k === "AUXC") return { s: "na", ref: "判定なし（補助極は " + CRITERIA.ground.aux + "Ω以下が望ましい）" };
+  if (k === "A" || k === "PAS" || k === "LA") { limit = CRITERIA.ground.A; ref = CRITERIA.ground.A + "Ω以下"; }
+  else if (k === "C") { limit = r.fast ? CRITERIA.ground.fastBreak : CRITERIA.ground.C;
+    ref = r.fast ? CRITERIA.ground.fastBreak + "Ω以下（0.5秒以内遮断）" : CRITERIA.ground.C + "Ω以下"; }
+  else if (k === "D") { limit = r.fast ? CRITERIA.ground.fastBreak : CRITERIA.ground.D;
+    ref = r.fast ? CRITERIA.ground.fastBreak + "Ω以下（0.5秒以内遮断）" : CRITERIA.ground.D + "Ω以下"; }
+  else if (k === "B") { limit = bLimit(r); ref = isNaN(limit) ? "基準値未設定（容量・地絡電流・遮断時間を入力）" : fmt(limit, 2) + "Ω以下"; }
+  if (isNaN(limit) || isNaN(v)) return { s: "na", ref: ref, limit: limit };
+  var s = v <= limit ? "ok" : "ng";
+  var note = (s === "ok" && v > limit * CRITERIA.ground.marginRatio) ? "基準値の80%超（余裕なし）" : "";
+  return { s: s, ref: ref, limit: limit, note: note };
+}
+
+/* ---- 4.2 高圧絶縁抵抗 ---- */
+function toGO(r) { var v = num(r.value); if (isNaN(v)) return NaN; return r.unit === "MΩ" ? v / 1000 : v; }
+function toMO(r) { var v = num(r.value); if (isNaN(v)) return NaN; return r.unit === "MΩ" ? v : v * 1000; }
+function hvGroupKey(r) { return r.place + "|" + r.method + "|" + r.side; }
+function phaseLabel(p) { return p === "3線一括" ? "3線一括" : p + "相"; }
+function weakRatio(s, r) {
+  if (has(r.wrManual)) return num(r.wrManual);
+  var g = s.hv.filter(function (x) { return hvGroupKey(x) === hvGroupKey(r) && has(x.value); }).map(toGO);
+  if (g.length < 2) return NaN;
+  var mx = Math.max.apply(null, g), mn = Math.min.apply(null, g);
+  if (!(mn > 0)) return NaN;
+  return mx / mn;
+}
+function judgeHv(s, r) {
+  if (r.leak) return { s: "ng", ref: "リーク音・キック現象あり → 無条件で不良" };
+  var C = CRITERIA.hv;
+  if (r.place === "sheath") {
+    var m = toMO(r), ref0 = C.sheathE_MO + "MΩ以上=良（シース E方式）";
+    if (isNaN(m)) return { s: "na", ref: ref0 };
+    return { s: m >= C.sheathE_MO ? "ok" : "ng", ref: ref0 };
+  }
+  var g = toGO(r);
+  if (r.place === "cable") {
+    if (r.method === "G") {
+      var refG = C.cableG.ok + "GΩ以上=良 / " + C.cableG.warn + "GΩ以上=要注意";
+      if (isNaN(g)) return { s: "na", ref: refG };
+      return { s: g >= C.cableG.ok ? "ok" : (g >= C.cableG.warn ? "warn" : "ng"), ref: refG };
+    }
+    var refE = C.cableE.ok + "GΩ以上=良 / " + C.cableE.warn + "GΩ以上=要注意";
+    if (isNaN(g)) return { s: "na", ref: refE };
+    return { s: g >= C.cableE.ok ? "ok" : (g >= C.cableE.warn ? "warn" : "ng"), ref: refE };
+  }
+  // 母線・機器
+  var wr = weakRatio(s, r);
+  var refB = C.busE.ok + "GΩ以上=良 / " + C.busE.ng + "〜" + C.busE.ok + "GΩは弱点比" + C.busE.weakRatio + "未満=良・以上=要注意 / " + C.busE.ng + "GΩ未満=不良";
+  if (isNaN(g)) return { s: "na", ref: refB, wr: wr };
+  if (g >= C.busE.ok) return { s: "ok", ref: refB, wr: wr };
+  if (g < C.busE.ng) return { s: "ng", ref: refB, wr: wr };
+  if (isNaN(wr)) return { s: "warn", ref: refB, wr: wr, note: "弱点比が未算出（同条件の測定が2点以上必要）" };
+  return { s: wr < C.busE.weakRatio ? "ok" : "warn", ref: refB, wr: wr };
+}
+
+/* ---- 4.3 継電器 ---- */
+function relayTitle(t) {
+  return { OCR: "OCR（51）過電流継電器", GR: "GR（51G）地絡継電器", DGR: "DGR（67）地絡方向継電器",
+    OVR: "OVR（59）過電圧継電器", UVR: "UVR（27）不足電圧継電器", OVGR: "OVGR（64）地絡過電圧継電器",
+    LGR: "LGR / 漏電火災警報器" }[t] || t;
+}
+function tolRange(base, pct) { if (isNaN(base)) return null; return [base * (1 - pct / 100), base * (1 + pct / 100)]; }
+
+/* 各継電器の測定項目定義：judge は {s,ref} を返す */
+function relayItems(r) {
+  var s = r.s || {}, m = r.m || {}, C = CRITERIA.relay, out = [];
+  var d;
+  if (r.type === "OCR") {
+    var tap = num(s.tap), inst = num(s.inst), link = s.link || "連動";
+    var rL = tolRange(tap, C.OCR.limTol), rI = tolRange(inst, C.OCR.instTol);
+    var tb = num(s.timeBase), tt = has(s.timeTol) ? num(s.timeTol) : C.OCR.timeTolDefault;
+    var rT = tolRange(tb, tt);
+    var itMax = C.OCR.instTime[link];
+    out.push({ key: "limMin", label: "限時 最小動作電流 [A]", phases: true, dec: 2,
+      ref: rL ? "整定 ±" + C.OCR.limTol + "%：" + rangeText(rL[0], rL[1], " A", 2) : "限時タップを入力",
+      judge: function (v) { return rL ? judgeRange(v, rL[0], rL[1]) : "na"; } });
+    out.push({ key: "limTime", label: "限時 動作時間（整定" + C.OCR.testPct + "%＝" + (isNaN(tap) ? "—" : fmt(tap * 2, 2)) + "A）[s]", phases: true, dec: 3,
+      ref: rT ? "基準 " + fmt(tb, 3) + "s ±" + fmt(tt, 1) + "%：" + rangeText(rT[0], rT[1], " s", 3) : "メーカー特性表の基準値[s]を入力",
+      judge: function (v) { return rT ? judgeRange(v, rT[0], rT[1]) : "na"; } });
+    out.push({ key: "instMin", label: "瞬時 最小動作電流 [A]", phases: true, dec: 2,
+      ref: rI ? "整定 ±" + C.OCR.instTol + "%：" + rangeText(rI[0], rI[1], " A", 2) : "瞬時整定を入力",
+      judge: function (v) { return rI ? judgeRange(v, rI[0], rI[1]) : "na"; } });
+    out.push({ key: "instTime", label: "瞬時 動作時間（整定" + C.OCR.testPct + "%）[s]", phases: true, dec: 3,
+      ref: link + "：" + itMax + "s以内" + (link === "連動" ? "（0.05s＋遮断器3サイクル）" : ""),
+      judge: function (v) { return isNaN(v) ? "na" : (v <= itMax ? "ok" : "ng"); } });
+    return out;
+  }
+  if (r.type === "GR" || r.type === "DGR") {
+    var i0 = num(s.i0), v0 = num(s.v0), link2 = s.link || "連動";
+    var rI0 = tolRange(i0, C.GR.iTol), rV0 = tolRange(v0, C.GR.vTol);
+    var ot = C.GR.opTime[link2];
+    out.push({ key: "iMin", label: "最小動作電流 [A]", dec: 3,
+      ref: rI0 ? "整定 ±" + C.GR.iTol + "%：" + rangeText(rI0[0], rI0[1], " A", 3) : "零相動作電流 I0 を入力",
+      judge: function (v) { return rI0 ? judgeRange(v, rI0[0], rI0[1]) : "na"; } });
+    if (r.type === "DGR") {
+      out.push({ key: "vMin", label: "最小動作電圧 [V]", dec: 3,
+        ref: rV0 ? "整定 ±" + C.GR.vTol + "%：" + rangeText(rV0[0], rV0[1], " V", 3) : "零相動作電圧 V0 を入力",
+        judge: function (v) { return rV0 ? judgeRange(v, rV0[0], rV0[1]) : "na"; } });
+      var pl0 = num(s.phLeadMin), pl1 = num(s.phLeadMax);
+      out.push({ key: "phLead", label: "位相特性 動作限界角 進み側 [°]", dec: 1,
+        ref: (!isNaN(pl0) && !isNaN(pl1)) ? "メーカー範囲：" + rangeText(pl0, pl1, "°", 1) + "（最大感度角は進み" + C.GR.maxSensAngle + "°）"
+          : "メーカー明示の範囲を整定欄に入力（最大感度角 進み" + C.GR.maxSensAngle + "°）",
+        judge: function (v) { return (!isNaN(pl0) && !isNaN(pl1)) ? judgeRange(v, pl0, pl1) : "na"; } });
+      var pg0 = num(s.phLagMin), pg1 = num(s.phLagMax);
+      out.push({ key: "phLag", label: "位相特性 動作限界角 遅れ側 [°]", dec: 1,
+        ref: (!isNaN(pg0) && !isNaN(pg1)) ? "メーカー範囲：" + rangeText(pg0, pg1, "°", 1) : "メーカー明示の範囲を整定欄に入力",
+        judge: function (v) { return (!isNaN(pg0) && !isNaN(pg1)) ? judgeRange(v, pg0, pg1) : "na"; } });
+    }
+    out.push({ key: "opTime", label: "動作時間（整定" + C.GR.testPct + "%＝" + (isNaN(i0) ? "—" : fmt(i0 * 1.3, 3)) + "A印加）[s]", dec: 3,
+      ref: link2 + "：" + rangeText(ot[0], ot[1], " s", 2),
+      judge: function (v) { return judgeRange(v, ot[0], ot[1]); } });
+    out.push({ key: "inertia", type: "select", options: ["", "不動作", "動作"],
+      label: "慣性不動作（" + C.GR.inertiaPct + "%＝" + (isNaN(i0) ? "—" : fmt(i0 * 4, 3)) + "A × " + C.GR.inertiaSec + "s）",
+      ref: "「不動作」なら合格",
+      judgeStr: function (v) { return v === "不動作" ? "ok" : (v === "動作" ? "ng" : "na"); } });
+    out.push({ key: "so", type: "select", options: ["", "動作", "不動作"], label: "SOテストボタン動作",
+      ref: "「動作」なら合格", judgeStr: function (v) { return v === "動作" ? "ok" : (v === "不動作" ? "ng" : "na"); } });
+    return out;
+  }
+  if (r.type === "OVR" || r.type === "UVR" || r.type === "OVGR") {
+    var K = C[r.type], setV = num(s.setV), setT = num(s.setT);
+    var rV = tolRange(setV, K.vTol), rTt = tolRange(setT, K.tTol);
+    var opV = num((r.m || {}).opV);
+    out.push({ key: "opV", label: "動作電圧 [V]", dec: 2,
+      ref: rV ? "整定 ±" + K.vTol + "%：" + rangeText(rV[0], rV[1], " V", 2) : "電圧整定値を入力",
+      judge: function (v) { return rV ? judgeRange(v, rV[0], rV[1]) : "na"; } });
+    if (r.type === "UVR") {
+      d = isNaN(opV) ? NaN : opV * K.resetMaxPct / 100;
+      out.push({ key: "resetV", label: "復帰電圧 [V]", dec: 2,
+        ref: isNaN(d) ? "動作電圧を入力すると基準を表示" : "動作値の" + K.resetMaxPct.toFixed(1) + "%以下：" + fmt(d, 2) + " V 以下",
+        judge: function (v) { return isNaN(v) || isNaN(d) ? "na" : (v <= d ? "ok" : "ng"); } });
+    } else {
+      d = isNaN(opV) ? NaN : opV * K.resetMinPct / 100;
+      out.push({ key: "resetV", label: "復帰電圧 [V]", dec: 2,
+        ref: isNaN(d) ? "動作電圧を入力すると基準を表示" : "動作値の" + K.resetMinPct.toFixed(1) + "%以上：" + fmt(d, 2) + " V 以上",
+        judge: function (v) { return isNaN(v) || isNaN(d) ? "na" : (v >= d ? "ok" : "ng"); } });
+    }
+    var stepLbl = r.type === "UVR" ? "110V → タップ" + K.stepPct + "% 急変" : "タップ" + K.stepPct + "% 急変";
+    out.push({ key: "opTime", label: "動作時間（" + stepLbl + "）[s]", dec: 3,
+      ref: rTt ? "時間整定 ±" + K.tTol.toFixed(1) + "%：" + rangeText(rTt[0], rTt[1], " s", 3) : "時間整定値[s]を入力",
+      judge: function (v) { return rTt ? judgeRange(v, rTt[0], rTt[1]) : "na"; } });
+    return out;
+  }
+  if (r.type === "LGR") {
+    out.push({ key: "opI", label: "動作値 [mA]", dec: 1,
+      ref: "整定" + (has(s.setI) ? " " + fmt(num(s.setI), 1) + "mA" : "（一般に " + C.LGR.typicalSet + "mA）") +
+           "／実測は " + C.LGR.actualFrom + "mA 程度から動作域に入るのが目安（自動判定なし）",
+      judge: function () { return "na"; } });
+    out.push({ key: "opTime", label: "動作時間 [s]", dec: 3, ref: "記録のみ（自動判定なし）", judge: function () { return "na"; } });
+    return out;
+  }
+  return out;
+}
+function relaySettingFields(t) {
+  if (t === "OCR") return [
+    { k: "tap", l: "限時タップ [A]" }, { k: "lever", l: "レバー" }, { k: "inst", l: "瞬時整定 [A]" },
+    { k: "time", l: "時限 [s]" }, { k: "ct", l: "CT比", text: true },
+    { k: "link", l: "連動 / 単体", sel: ["連動", "単体"] },
+    { k: "timeBase", l: "限時動作時間 基準値 [s]（特性表）" }, { k: "timeTol", l: "同 許容 [±%]" }
+  ];
+  if (t === "GR") return [
+    { k: "i0", l: "零相動作電流 I0 [A]（標準0.2）" }, { k: "opt", l: "動作時間整定 [s]（標準0.2）" },
+    { k: "link", l: "連動 / 単体", sel: ["連動", "単体"] }
+  ];
+  if (t === "DGR") return [
+    { k: "i0", l: "零相動作電流 I0 [A]（標準0.2）" }, { k: "v0", l: "零相動作電圧 V0 [V]（標準5%）" },
+    { k: "opt", l: "動作時間整定 [s]（標準0.2）" }, { k: "link", l: "連動 / 単体", sel: ["連動", "単体"] },
+    { k: "phLeadMin", l: "位相 進み側 下限 [°]" }, { k: "phLeadMax", l: "位相 進み側 上限 [°]" },
+    { k: "phLagMin", l: "位相 遅れ側 下限 [°]" }, { k: "phLagMax", l: "位相 遅れ側 上限 [°]" }
+  ];
+  if (t === "OVR" || t === "UVR" || t === "OVGR") return [
+    { k: "setV", l: "電圧整定 [V]" }, { k: "setT", l: "時間整定 [s]" }, { k: "tap", l: "タップ", text: true }
+  ];
+  if (t === "LGR") return [{ k: "setI", l: "整定 [mA]（一般に800）" }];
+  return [];
+}
+
+/* ---- 4.4 低圧 ---- */
+function judgeLv(r) {
+  var lim = CRITERIA.lv.classes[r.cls];
+  var v = num(r.ir), ref = r.cls + "：" + lim + "MΩ以上";
+  if (isNaN(v) || lim === undefined) return { s: "na", ref: ref };
+  return { s: v >= lim ? "ok" : "ng", ref: ref };
+}
+function judgeLeak(v) {
+  var x = num(v); if (isNaN(x)) return { s: "na", ref: CRITERIA.lv.leakMax + "mA以下" };
+  return { s: x <= CRITERIA.lv.leakMax ? "ok" : "ng", ref: CRITERIA.lv.leakMax + "mA以下" };
+}
+
+/* =========================================================================
+   5. 画面描画
+   ========================================================================= */
+var app = document.getElementById("app");
+function render() {
+  var html = "";
+  if (ui.screen === "home") html = viewHome();
+  else if (ui.screen === "site") html = viewSite();
+  else if (ui.screen === "ref") html = viewRef();
+  else html = viewSettings();
+  app.innerHTML = html + viewNav();
+  refreshJudge();
+  if (ui.refJump) { var el = document.getElementById(ui.refJump); ui.refJump = null;
+    if (el) { el.open = true; setTimeout(function () { el.scrollIntoView({ block: "start" }); }, 30); } }
+}
+function viewNav() {
+  var n = function (s, ic, l) {
+    return '<button data-act="nav" data-screen="' + s + '"' + (ui.screen === s || (s === "home" && ui.screen === "site") ? ' aria-current="page"' : "") +
+      '><span class="ic">' + ic + "</span>" + l + "</button>";
+  };
+  return '<nav class="nav">' + n("home", "🏠", "現場") + n("ref", "📖", "リファレンス") + n("settings", "⚙️", "設定") + "</nav>";
+}
+
+/* ---- 5.1 ホーム ---- */
+function viewHome() {
+  var list = sortedSites();
+  if (ui.q) { var q = ui.q.toLowerCase();
+    list = list.filter(function (s) { return (s.name || "").toLowerCase().indexOf(q) >= 0 || (s.date || "").indexOf(q) >= 0; }); }
+  var body = list.map(function (s) {
+    var p = progress(s);
+    var chips = p.req.map(function (c) {
+      var ok = catFilled(s, c);
+      return '<span class="chip ' + (ok ? "done" : "todo") + '">' + CATS[c] + (ok ? " ✓" : " 未") + "</span>";
+    }).join("");
+    return '<button class="site" data-act="open" data-id="' + s.id + '">' +
+      '<div class="t">' + esc(s.name || "（無題の現場）") + "</div>" +
+      '<div class="m">' + esc(s.date || "日付未設定") + "　/　" + esc(s.type) + "　/　" + esc(s.voltage || "-") + "</div>" +
+      '<div class="pbar"><i style="width:' + p.pct + '%"></i></div>' +
+      '<div class="chips"><span class="chip">進捗 ' + p.done.length + "/" + p.req.length + "</span>" + chips + "</div>" +
+      "</button>";
+  }).join("");
+  return '<header class="bar"><h1>保安管理 点検記録</h1></header>' +
+    '<div class="wrap">' +
+    '<div class="field"><input class="in" type="search" placeholder="現場名・日付で検索" value="' + esc(ui.q) + '" data-act="search"></div>' +
+    (list.length ? body : '<div class="empty">現場がありません。<br>右下の「＋ 新規現場」から作成してください。</div>') +
+    "</div>" +
+    '<button class="fab" data-act="newsite">＋ 新規現場</button>';
+}
+
+/* ---- 5.2 現場詳細 ---- */
+function viewSite() {
+  var s = site();
+  if (!s) { ui.screen = "home"; return viewHome(); }
+  var p = progress(s), prev = prevSite(s);
+  var tabs = [["ground", "接地抵抗"], ["hv", "高圧絶縁"], ["relay", "継電器試験"], ["lv", "低圧絶縁・漏洩"], ["memo", "自由メモ"]]
+    .map(function (t) { return '<button class="tab" role="tab" aria-selected="' + (ui.tab === t[0]) + '" data-act="tab" data-tab="' + t[0] + '">' + t[1] + "</button>"; }).join("");
+  var body = ui.tab === "ground" ? tabGround(s, prev) : ui.tab === "hv" ? tabHv(s, prev)
+    : ui.tab === "relay" ? tabRelay(s) : ui.tab === "lv" ? tabLv(s, prev) : tabMemo(s);
+  return '<header class="bar">' +
+    '<button class="iconbtn" data-act="nav" data-screen="home">‹ 戻る</button>' +
+    "<h1>" + esc(s.name || "（無題の現場）") + "</h1>" +
+    '<button class="iconbtn" data-act="export-text">出力</button>' +
+    "</header>" +
+    '<div class="tabs" role="tablist">' + tabs + "</div>" +
+    '<div class="wrap">' +
+    '<div class="card">' +
+      '<div class="field"><label>現場名</label><input class="in" data-bind="site:name" value="' + esc(s.name) + '"></div>' +
+      '<div class="row">' +
+        '<div class="field"><label>受電電圧</label><input class="in" data-bind="site:voltage" value="' + esc(s.voltage) + '"></div>' +
+        '<div class="field"><label>点検日</label><input class="in" type="date" data-bind="site:date" value="' + esc(s.date) + '"></div>' +
+      "</div>" +
+      '<div class="field"><label>種別</label><select data-bind="site:type">' +
+        SITE_TYPES.map(function (t) { return '<option' + (s.type === t ? " selected" : "") + ">" + t + "</option>"; }).join("") + "</select></div>" +
+      '<div class="pbar"><i style="width:' + p.pct + '%"></i></div>' +
+      '<div class="chips"><span class="chip">' + s.type + "の必須項目 " + p.done.length + "/" + p.req.length + "</span>" +
+        p.req.map(function (c) { var ok = catFilled(s, c); return '<span class="chip ' + (ok ? "done" : "todo") + '">' + CATS[c] + (ok ? " ✓" : " 未") + "</span>"; }).join("") +
+      "</div>" +
+      (prev ? '<div class="muted small" style="margin-top:8px">前回：' + esc(prev.date) + "（" + esc(prev.type) + "）の記録と比較表示中</div>" : "") +
+    "</div>" +
+    body + "</div>";
+}
+
+/* ---- 接地抵抗タブ ---- */
+function tabGround(s, prev) {
+  var rows = s.ground.map(function (r) {
+    var kindSel = GROUND_KINDS.map(function (g) { return '<option value="' + g.k + '"' + (r.kind === g.k ? " selected" : "") + ">" + g.label + "</option>"; }).join("");
+    var extra = "";
+    if (r.kind === "C" || r.kind === "D") {
+      extra = '<label class="check"><input type="checkbox" data-bind="ground:' + r.id + ':fast"' + (r.fast ? " checked" : "") +
+        ">0.5秒以内に自動遮断する装置あり（500Ωに緩和）</label>";
+    }
+    if (r.kind === "B") {
+      var bo = Object.keys(CRITERIA.ground.bBases).map(function (k) {
+        return '<option value="' + esc(k) + '" data-v="' + CRITERIA.ground.bBases[k] + '"' + (r.bBaseLabel === k ? " selected" : "") + ">" + esc(k) + "（" + CRITERIA.ground.bBases[k] + "）</option>";
+      }).join("");
+      extra =
+        '<div class="mline"><div class="t">B種 基準値の算出（150 / 300 / 600 ÷ 1線地絡電流）</div>' +
+        '<div class="field"><label>変圧器容量 [kVA]（記録用）</label><input class="in" inputmode="decimal" data-bind="ground:' + r.id + ':bCap" value="' + esc(r.bCap) + '"></div>' +
+        '<div class="field"><label>混触時の遮断時間</label><select data-bind="ground:' + r.id + ':bBaseLabel"><option value="">選択</option>' + bo + "</select></div>" +
+        '<div class="row">' +
+        '<div class="field"><label>1線地絡電流 I [A]</label><input class="in" inputmode="decimal" data-bind="ground:' + r.id + ':bIg" value="' + esc(r.bIg) + '"></div>' +
+        '<div class="field"><label>基準値 手入力 [Ω]（優先）</label><input class="in" inputmode="decimal" data-bind="ground:' + r.id + ':bManual" value="' + esc(r.bManual) + '"></div>' +
+        "</div></div>";
+    }
+    return '<div class="item">' +
+      '<div class="head"><input class="in name" data-bind="ground:' + r.id + ':name" value="' + esc(r.name) + '" placeholder="項目名">' +
+      '<button class="del" data-act="del" data-cat="ground" data-id="' + r.id + '" aria-label="削除">✕</button></div>' +
+      '<div class="row">' +
+        '<div class="field"><label>測定値 [Ω]</label><input class="in" inputmode="decimal" data-bind="ground:' + r.id + ':value" value="' + esc(r.value) + '"></div>' +
+        '<div class="field"><label>種別</label><select data-bind="ground:' + r.id + ':kind">' + kindSel + "</select></div>" +
+      "</div>" +
+      '<div class="row">' +
+        '<div class="field"><label>測定方式</label><select data-bind="ground:' + r.id + ':method">' +
+          ["3極法", "2点法・アースチェッカー"].map(function (m) { return '<option' + (r.method === m ? " selected" : "") + ">" + m + "</option>"; }).join("") + "</select></div>" +
+        '<div class="field"><label>地電圧 [V]</label><input class="in" inputmode="decimal" data-bind="ground:' + r.id + ':gv" value="' + esc(r.gv) + '"></div>' +
+      "</div>" +
+      extra +
+      '<div class="field"><label>備考</label><input class="in" data-bind="ground:' + r.id + ':note" value="' + esc(r.note) + '"></div>' +
+      '<div class="jslot" data-jslot="ground:' + r.id + '"></div>' +
+      "</div>";
+  }).join("");
+  return '<div class="card">' +
+    '<div class="notice"><b>⚠ 作業前の必須確認</b><ul>' +
+      "<li>渡り線（連接線）の脱着は<b>必ず停電状態で</b>。B種の活線外しは厳禁。</li>" +
+      "<li>測定前に<b>地電圧 " + CRITERIA.ground.groundVoltageMax + "V以下</b>を確認する。</li>" +
+      "<li>3極法は補助極を約10m間隔で一直線に配置。</li>" +
+      '</ul><button class="btn sm ghost" style="margin-top:8px" data-act="goref" data-ref="ref-earth">📖 接地抵抗計の使い方</button></div>' +
+    "<h2>接地抵抗</h2>" + (rows || '<div class="muted" style="margin-bottom:10px">項目がありません。</div>') +
+    '<div class="btnrow"><button class="btn" data-act="add" data-cat="ground">＋ 行を追加</button>' +
+    '<button class="btn ghost" data-act="tmpl-ground">標準4項目を挿入</button></div>' +
+    "</div>";
+}
+
+/* ---- 高圧絶縁タブ ---- */
+function tabHv(s, prev) {
+  var PL = [["cable", "ケーブル絶縁体"], ["bus", "母線・機器"], ["sheath", "ケーブルシース"]];
+  var PH = ["R", "S", "T", "3線一括"];
+  var rows = s.hv.map(function (r) {
+    var sideHint = r.side === "電源側" ? "電源側：G方式・E方式の<b>両方</b>を測定する"
+      : "負荷側：<b>E方式のみ</b>（G方式は測定不可）";
+    return '<div class="item">' +
+      '<div class="head"><div class="name" style="font-weight:700;font-size:14px">' +
+        esc((PL.filter(function (p) { return p[0] === r.place; })[0] || ["", ""])[1]) + "／" + esc(r.method) + "方式／" + esc(r.side) + "／" + esc(phaseLabel(r.phase)) + "</div>" +
+      '<button class="del" data-act="del" data-cat="hv" data-id="' + r.id + '" aria-label="削除">✕</button></div>' +
+      '<div class="row">' +
+        '<div class="field"><label>測定箇所</label><select data-bind="hv:' + r.id + ':place">' +
+          PL.map(function (p) { return '<option value="' + p[0] + '"' + (r.place === p[0] ? " selected" : "") + ">" + p[1] + "</option>"; }).join("") + "</select></div>" +
+        '<div class="field"><label>方式</label><select data-bind="hv:' + r.id + ':method">' +
+          ["G", "E"].map(function (m) { return '<option value="' + m + '"' + (r.method === m ? " selected" : "") + ">" + m + "方式</option>"; }).join("") + "</select></div>" +
+      "</div>" +
+      '<div class="row">' +
+        '<div class="field"><label>測定側</label><select data-bind="hv:' + r.id + ':side">' +
+          ["電源側", "負荷側"].map(function (m) { return '<option' + (r.side === m ? " selected" : "") + ">" + m + "</option>"; }).join("") + "</select></div>" +
+        '<div class="field"><label>相</label><select data-bind="hv:' + r.id + ':phase">' +
+          PH.map(function (m) { return '<option' + (r.phase === m ? " selected" : "") + ">" + m + "</option>"; }).join("") + "</select></div>" +
+      "</div>" +
+      '<div class="row">' +
+        '<div class="field" style="flex:2 1 0"><label>測定値（1分値）</label><input class="in" inputmode="decimal" data-bind="hv:' + r.id + ':value" value="' + esc(r.value) + '"></div>' +
+        '<div class="field unit"><label>単位</label><select data-bind="hv:' + r.id + ':unit">' +
+          ["GΩ", "MΩ"].map(function (m) { return '<option' + (r.unit === m ? " selected" : "") + ">" + m + "</option>"; }).join("") + "</select></div>" +
+      "</div>" +
+      '<div class="muted small">' + sideHint + "</div>" +
+      '<label class="check"><input type="checkbox" data-bind="hv:' + r.id + ':leak"' + (r.leak ? " checked" : "") + ">リーク音・キック現象あり（→ 不良）</label>" +
+      (r.place === "bus" ? '<div class="field"><label>弱点比 手入力（自動算出を上書き）</label><input class="in" inputmode="decimal" data-bind="hv:' + r.id + ':wrManual" value="' + esc(r.wrManual) + '"></div>' : "") +
+      '<div class="field"><label>備考</label><input class="in" data-bind="hv:' + r.id + ':note" value="' + esc(r.note) + '"></div>' +
+      '<div class="jslot" data-jslot="hv:' + r.id + '"></div>' +
+      "</div>";
+  }).join("");
+  return '<div class="card">' +
+    '<div class="notice"><b>測定のポイント</b><ul>' +
+      "<li>高圧メガーは<b>1分値</b>で読む。放電棒は使用前に1MΩ以上あることを確認。</li>" +
+      "<li>電源側は G方式・E方式の両方、負荷側は E方式のみ。</li>" +
+      "<li>弱点比＝同条件グループの<b>最大値 ÷ 最小値</b>（自動算出／手入力で上書き可）。</li>" +
+      '</ul><button class="btn sm ghost" style="margin-top:8px" data-act="goref" data-ref="ref-megger">📖 高圧メガーの使い方</button></div>' +
+    "<h2>高圧絶縁抵抗</h2>" + (rows || '<div class="muted" style="margin-bottom:10px">測定がありません。</div>') +
+    '<div class="btnrow"><button class="btn" data-act="add" data-cat="hv">＋ 測定を追加</button>' +
+    '<button class="btn ghost" data-act="tmpl-hv">R/S/T 3相を一括追加</button></div>' +
+    "</div>";
+}
+
+/* ---- 継電器タブ ---- */
+function tabRelay(s) {
+  var cards = s.relays.map(function (r) {
+    var sf = relaySettingFields(r.type).map(function (f) {
+      var v = pick(r.s || {}, f.k);
+      if (f.sel) return '<div class="field"><label>' + esc(f.l) + "</label><select data-bind=\"relay:" + r.id + ":s." + f.k + '">' +
+        f.sel.map(function (o) { return '<option' + (v === o ? " selected" : "") + ">" + o + "</option>"; }).join("") + "</select></div>";
+      return '<div class="field"><label>' + esc(f.l) + "</label><input class=\"in\"" + (f.text ? "" : ' inputmode="decimal"') +
+        ' data-bind="relay:' + r.id + ":s." + f.k + '" value="' + esc(v) + '"></div>';
+    }).join("");
+    var items = relayItems(r).map(function (it) {
+      if (it.type === "select") {
+        var cv = pick(r.m || {}, it.key);
+        return '<div class="mline"><div class="t">' + esc(it.label) + "</div>" +
+          '<select data-bind="relay:' + r.id + ":m." + it.key + '">' +
+            it.options.map(function (o) { return '<option' + (cv === o ? " selected" : "") + ">" + esc(o) + "</option>"; }).join("") + "</select>" +
+          '<div class="jslot" data-jslot="relay:' + r.id + ":" + it.key + '"></div></div>';
+      }
+      if (it.phases) {
+        return '<div class="mline"><div class="t">' + esc(it.label) + "</div>" +
+          ["R", "T"].map(function (p) {
+            return '<div class="ph"><span class="pl">' + p + "相</span>" +
+              '<input class="in" inputmode="decimal" data-bind="relay:' + r.id + ":m." + it.key + p + '" value="' + esc(pick(r.m || {}, it.key + p)) + '">' +
+              '<span class="jslot" data-jslot="relay:' + r.id + ":" + it.key + p + '" style="flex:0 0 auto;border:0;margin:0;padding:0"></span></div>';
+          }).join("") +
+          '<div class="jslot" data-jslot="relay:' + r.id + ":" + it.key + '"></div></div>';
+      }
+      return '<div class="mline"><div class="t">' + esc(it.label) + "</div>" +
+        '<input class="in" inputmode="decimal" data-bind="relay:' + r.id + ":m." + it.key + '" value="' + esc(pick(r.m || {}, it.key)) + '">' +
+        '<div class="jslot" data-jslot="relay:' + r.id + ":" + it.key + '"></div></div>';
+    }).join("");
+    var refBtn = (r.type === "OCR") ? '<button class="btn sm ghost" data-act="goref" data-ref="ref-ocr">📖 OCR結線</button>'
+      : (r.type === "GR" || r.type === "DGR") ? '<button class="btn sm ghost" data-act="goref" data-ref="ref-gr">📖 GR/DGR結線</button>'
+      : (r.type === "OVR" || r.type === "UVR" || r.type === "OVGR") ? '<button class="btn sm ghost" data-act="goref" data-ref="ref-ovr">📖 OVR/UVR/OVGR結線</button>' : "";
+    var lgrNote = r.type === "LGR" ?
+      '<div class="notice">整定は一般に ' + CRITERIA.relay.LGR.typicalSet + "mA。実測は " + CRITERIA.relay.LGR.actualFrom +
+      "mA 程度から動作域に入るのが目安。<br>トランス内部点検との<b>3年周期の交互実施</b>状況は下のメモ欄に記録。</div>" : "";
+    return '<div class="card">' +
+      '<div class="head" style="display:flex;align-items:center;gap:8px;margin-bottom:10px">' +
+        '<h2 style="flex:1;margin:0">' + esc(relayTitle(r.type)) + "</h2>" +
+        '<button class="del" data-act="del" data-cat="relays" data-id="' + r.id + '" aria-label="削除">✕</button></div>' +
+      '<div class="row"><div class="field"><label>器具番号・メーカー・形式</label><input class="in" data-bind="relay:' + r.id + ':label" value="' + esc(r.label) + '"></div></div>' +
+      lgrNote +
+      "<h3>整定値</h3>" + sf +
+      '<div class="btnrow" style="margin-bottom:10px"><button class="btn sm" data-act="loadpreset" data-id="' + r.id + '">前回の整定値を読込</button>' + refBtn + "</div>" +
+      "<h3>測定値・判定</h3>" + items +
+      '<div class="field"><label>メモ</label><textarea data-bind="relay:' + r.id + ':note" style="min-height:70px">' + esc(r.note) + "</textarea></div>" +
+      "</div>";
+  }).join("");
+  return '<div class="card">' +
+    "<h2>継電器試験</h2>" +
+    '<div class="muted small" style="margin-bottom:8px">整定値を入れると判定範囲が自動表示されます。判定基準は 限時=±' +
+      CRITERIA.relay.OCR.limTol + "%、瞬時=±" + CRITERIA.relay.OCR.instTol + "%。</div>" +
+    '<div class="row"><div class="field"><label>継電器を追加</label><select id="relayAdd">' +
+      ["OCR", "GR", "DGR", "OVR", "UVR", "OVGR", "LGR"].map(function (t) { return '<option value="' + t + '">' + esc(relayTitle(t)) + "</option>"; }).join("") +
+      "</select></div></div>" +
+    '<button class="btn primary wide" data-act="addrelay">＋ 追加</button>' +
+    "</div>" + cards;
+}
+
+/* ---- 低圧タブ ---- */
+function tabLv(s, prev) {
+  var CL = Object.keys(CRITERIA.lv.classes);
+  var rows = s.lv.map(function (r) {
+    return '<div class="item">' +
+      '<div class="head"><input class="in name" data-bind="lv:' + r.id + ':name" value="' + esc(r.name) + '" placeholder="回路名">' +
+      '<button class="del" data-act="del" data-cat="lv" data-id="' + r.id + '" aria-label="削除">✕</button></div>' +
+      '<div class="field"><label>対地電圧区分</label><select data-bind="lv:' + r.id + ':cls">' +
+        CL.map(function (c) { return '<option' + (r.cls === c ? " selected" : "") + ">" + c + "（" + CRITERIA.lv.classes[c] + "MΩ以上）</option>"; }).join("") + "</select></div>" +
+      '<div class="row">' +
+        '<div class="field"><label>絶縁抵抗 [MΩ]</label><input class="in" inputmode="decimal" data-bind="lv:' + r.id + ':ir" value="' + esc(r.ir) + '"></div>' +
+        '<div class="field"><label>漏えい電流 [mA]</label><input class="in" inputmode="decimal" data-bind="lv:' + r.id + ':leak" value="' + esc(r.leak) + '"></div>' +
+      "</div>" +
+      '<div class="field"><label>備考</label><input class="in" data-bind="lv:' + r.id + ':note" value="' + esc(r.note) + '"></div>' +
+      '<div class="jslot" data-jslot="lv:' + r.id + '"></div>' +
+      "</div>";
+  }).join("");
+  var b = s.bClamp || (s.bClamp = { io: "", igr: "", note: "" });
+  return '<div class="card">' +
+      "<h2>B種接地線 クランプ測定</h2>" +
+      '<div class="row">' +
+        '<div class="field"><label>Io（全漏えい電流）[mA]</label><input class="in" inputmode="decimal" data-bind="bclamp:io" value="' + esc(b.io) + '"></div>' +
+        '<div class="field"><label>Igr（抵抗分）[mA]</label><input class="in" inputmode="decimal" data-bind="bclamp:igr" value="' + esc(b.igr) + '"></div>' +
+      "</div>" +
+      '<div class="field"><label>備考</label><input class="in" data-bind="bclamp:note" value="' + esc(b.note) + '"></div>' +
+      '<div class="jslot" data-jslot="bclamp:igr"></div>' +
+    "</div>" +
+    '<div class="card"><h2>低圧回路 絶縁抵抗・漏えい電流</h2>' +
+      '<div class="muted small" style="margin-bottom:8px">低圧電路の漏えい電流は ' + CRITERIA.lv.leakMax + "mA以下が基準。</div>" +
+      (rows || '<div class="muted" style="margin-bottom:10px">回路がありません。</div>') +
+      '<div class="btnrow"><button class="btn" data-act="add" data-cat="lv">＋ 回路を追加</button></div>' +
+    "</div>";
+}
+
+/* ---- 自由メモ ---- */
+function tabMemo(s) {
+  return '<div class="card"><h2>自由メモ</h2>' +
+    '<textarea data-bind="site:memo" placeholder="外観点検・気付き事項・次回申し送り など">' + esc(s.memo) + "</textarea></div>";
+}
+
+/* =========================================================================
+   6. 判定スロットの更新（入力のフォーカスを壊さないため部分更新）
+   ========================================================================= */
+function prevLine(pv, unit, higherBetter) {
+  if (pv === undefined || pv === null || String(pv).trim() === "") return "";
+  return '<span class="prev">前回 ' + esc(pv) + (unit || "") + "</span>";
+}
+function trendMark(cur, prev, higherBetter) {
+  var a = num(cur), b = num(prev);
+  if (isNaN(a) || isNaN(b) || b === 0) return "";
+  if (Math.abs(a - b) / Math.abs(b) < 0.05) return "→ 横ばい";
+  var up = a > b;
+  return up ? "↑ 上昇" + (higherBetter ? "（改善）" : "（悪化）") : "↓ 低下" + (higherBetter ? "（悪化）" : "（改善）");
+}
+function refreshJudge() {
+  var s = site(); if (!s || ui.screen !== "site") return;
+  var prev = prevSite(s);
+  var slots = app.querySelectorAll("[data-jslot]");
+  for (var i = 0; i < slots.length; i++) {
+    var key = slots[i].getAttribute("data-jslot").split(":");
+    slots[i].innerHTML = slotHtml(s, prev, key);
+  }
+}
+function slotHtml(s, prev, key) {
+  var cat = key[0], id = key[1], sub = key[2];
+  if (cat === "ground") {
+    var r = s.ground.filter(function (x) { return x.id === id; })[0]; if (!r) return "";
+    var j = judgeGround(r);
+    var pv = prev ? (prev.ground.filter(function (x) { return x.name === r.name; })[0] || {}).value : null;
+    var gv = num(r.gv), gvw = (!isNaN(gv) && gv > CRITERIA.ground.groundVoltageMax) ?
+      '<span class="prev">⚠ 地電圧が' + CRITERIA.ground.groundVoltageMax + "Vを超過</span>" : "";
+    return badge(j.s) + '<span class="ref">基準：' + esc(j.ref) + "</span>" +
+      (j.note ? '<span class="prev">⚠ ' + esc(j.note) + "</span>" : "") + gvw +
+      (pv ? prevLine(pv, "Ω") + '<span class="prev">' + trendMark(r.value, pv, false) + "</span>" : "");
+  }
+  if (cat === "hv") {
+    var h = s.hv.filter(function (x) { return x.id === id; })[0]; if (!h) return "";
+    var jh = judgeHv(s, h);
+    var pvh = null;
+    if (prev) { var mt = prev.hv.filter(function (x) { return hvGroupKey(x) === hvGroupKey(h) && x.phase === h.phase; })[0];
+      if (mt) pvh = mt.value + (mt.unit || ""); }
+    return badge(jh.s) + '<span class="ref">基準：' + esc(jh.ref) + "</span>" +
+      (h.place === "bus" ? '<span class="prev">弱点比：' + (isNaN(jh.wr) ? "—" : fmt(jh.wr, 2)) + (has(h.wrManual) ? "（手入力）" : "（自動）") + "</span>" : "") +
+      (jh.note ? '<span class="prev">' + esc(jh.note) + "</span>" : "") +
+      (pvh ? prevLine(pvh, "") + '<span class="prev">' + trendMark(h.value, num(pvh), true) + "</span>" : "");
+  }
+  if (cat === "lv") {
+    var l = s.lv.filter(function (x) { return x.id === id; })[0]; if (!l) return "";
+    var jl = judgeLv(l), jk = judgeLeak(l.leak);
+    var pl = prev ? (prev.lv.filter(function (x) { return x.name === l.name; })[0] || {}).ir : null;
+    return "<span>絶縁 " + badge(jl.s) + "</span><span>漏えい " + badge(jk.s) + "</span>" +
+      '<span class="ref">' + esc(jl.ref) + " ／ 漏えい " + esc(jk.ref) + "</span>" +
+      (pl ? prevLine(pl, "MΩ") + '<span class="prev">' + trendMark(l.ir, pl, true) + "</span>" : "");
+  }
+  if (cat === "bclamp") {
+    var b = s.bClamp || {}; var jb = judgeLeak(b.igr);
+    return badge(jb.s) + '<span class="ref">Igr 基準：' + esc(jb.ref) + "（低圧電路の漏えい電流）</span>";
+  }
+  if (cat === "relay") {
+    var r2 = s.relays.filter(function (x) { return x.id === id; })[0]; if (!r2) return "";
+    var items = relayItems(r2);
+    // 相付き（key末尾がR/T）のセルか、項目全体か
+    var base = sub, phase = "";
+    var it = null;
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].key === sub) { it = items[i]; break; }
+      if (items[i].phases && (items[i].key + "R" === sub || items[i].key + "T" === sub)) { it = items[i]; phase = sub.slice(-1); base = items[i].key; break; }
+    }
+    if (!it) return "";
+    if (phase) {
+      var v = num(pick(r2.m || {}, base + phase));
+      return badge(it.judge ? it.judge(v) : "na");
+    }
+    if (it.type === "select") {
+      var cv = pick(r2.m || {}, it.key);
+      return badge(it.judgeStr ? it.judgeStr(cv) : "na") + '<span class="ref">' + esc(it.ref) + "</span>";
+    }
+    if (it.phases) return '<span class="ref">' + it.ref + "</span>";
+    var v2 = num(pick(r2.m || {}, it.key));
+    return badge(it.judge ? it.judge(v2) : "na") + '<span class="ref">' + it.ref + "</span>";
+  }
+  return "";
+}
+
+/* =========================================================================
+   7. リファレンス
+   ========================================================================= */
+function svgSog() {
+  return '<div class="svgwrap"><svg viewBox="0 0 640 300" width="640" height="300" xmlns="http://www.w3.org/2000/svg" font-family="sans-serif" font-size="13">' +
+    '<rect x="30" y="30" width="220" height="240" rx="8" fill="#f7fafd" stroke="#a9bcd4"/>' +
+    '<text x="140" y="52" text-anchor="middle" font-weight="bold" fill="#1b2430">SOG制御装置</text>' +
+    ['P1','P2','kt','lt','T','Z2/E','Va','Vb','Vc','B1/a1','B2/a2'].map(function(t,i){
+      var y = 76 + i*17;
+      return '<text x="52" y="'+y+'" fill="#1b2430">'+t+'</text>' +
+             '<line x1="120" y1="'+(y-5)+'" x2="250" y2="'+(y-5)+'" stroke="#c3d2e4"/>';
+    }).join("") +
+    '<rect x="380" y="30" width="230" height="240" rx="8" fill="#f7fafd" stroke="#a9bcd4"/>' +
+    '<text x="495" y="52" text-anchor="middle" font-weight="bold" fill="#1b2430">継電器試験器</text>' +
+    '<text x="400" y="86" fill="#1b2430">試験器電源</text>' +
+    '<text x="400" y="112" fill="#1b2430">I0 出力 → kt・lt</text>' +
+    '<text x="400" y="138" fill="#1b2430">V0 出力 → T・Z2/E</text>' +
+    '<text x="400" y="164" fill="#1b2430">トリップ検出 → B1・a1</text>' +
+    '<text x="400" y="204" fill="#b3261e" font-weight="bold">試験前に P1・P2 を離線</text>' +
+    '<text x="400" y="226" fill="#b3261e" font-weight="bold">Vc も離線（コイル保護）</text>' +
+    '<line x1="250" y1="140" x2="380" y2="140" stroke="#1769d6" stroke-width="2"/>' +
+    '<polygon points="380,140 370,135 370,145" fill="#1769d6"/>' +
+    "</svg></div>";
+}
+function svgCtt() {
+  return '<div class="svgwrap"><svg viewBox="0 0 420 200" width="420" height="200" xmlns="http://www.w3.org/2000/svg" font-family="sans-serif" font-size="13">' +
+    '<text x="210" y="24" text-anchor="middle" font-weight="bold" fill="#1b2430">CTT（正面から見た並び）</text>' +
+    '<rect x="40" y="46" width="340" height="86" rx="8" fill="#f7fafd" stroke="#a9bcd4"/>' +
+    '<circle cx="110" cy="89" r="17" fill="#fff" stroke="#1b2430"/><text x="110" y="94" text-anchor="middle">白</text>' +
+    '<circle cx="210" cy="89" r="17" fill="#fff" stroke="#1b2430"/><text x="210" y="94" text-anchor="middle">E</text>' +
+    '<circle cx="310" cy="89" r="17" fill="#fff" stroke="#1b2430"/><text x="310" y="94" text-anchor="middle">黒</text>' +
+    '<text x="110" y="152" text-anchor="middle" fill="#42506a">左＝白線</text><text x="110" y="170" text-anchor="middle" fill="#42506a">R相</text>' +
+    '<text x="210" y="152" text-anchor="middle" fill="#42506a">中＝アース</text><text x="210" y="170" text-anchor="middle" fill="#42506a">（S相共通）</text>' +
+    '<text x="310" y="152" text-anchor="middle" fill="#42506a">右＝黒線</text><text x="310" y="170" text-anchor="middle" fill="#42506a">T相</text>' +
+    "</svg></div>";
+}
+function viewRef() {
+  var R = function (id, title, body) { return '<details class="ref" id="' + id + '"><summary>' + title + '</summary><div class="body">' + body + "</div></details>"; };
+  return '<header class="bar"><h1>リファレンス</h1></header><div class="wrap">' +
+    '<div class="muted small" style="margin-bottom:10px">閲覧専用。記録画面の「📖」ボタンから該当項目へ直接ジャンプできます。</div>' +
+
+    R("ref-gr", "GR / DGR（SOG制御盤）結線",
+      "<p>SOG制御装置の端子と役割：</p>" +
+      '<table class="tbl"><tr><th>端子</th><th>役割</th></tr>' +
+      "<tr><td>P1・P2</td><td>電源（自電源＝VT内蔵／他電源＝VT非内蔵）</td></tr>" +
+      "<tr><td>kt・lt</td><td>零相電流 I0 入力（試験器の電流出力を接続）</td></tr>" +
+      "<tr><td>T・Z2/E</td><td>零相電圧 V0 入力（DGRの電圧要素）</td></tr>" +
+      "<tr><td>Va・Vb・Vc</td><td>トリップコイル出力</td></tr>" +
+      "<tr><td>B1・a1 / B2・a2</td><td>トリップ線 T1・T2（動作検出）</td></tr></table>" +
+      svgSog() +
+      '<div class="warnbox"><b>試験前の必須処置</b><ul>' +
+      "<li>通常電源の <b>P1・P2 を必ず離線</b>（試験器電源と建物電源の衝突防止）。</li>" +
+      "<li>トリップコイル破損防止のため <b>Vc を離線</b>。</li>" +
+      "<li>VT内蔵PASの耐圧試験時は <b>P1・P2 を絶対に切り離す</b>（逆加圧でSOG基板が全損）。VT非内蔵でも原則切り離す。</li>" +
+      "</ul></div>" +
+      "<p><b>自電源方式（VT内蔵）</b>：PAS内蔵VTから制御電源を取る。停電中でも試験器電源で動作確認可。耐圧時の逆加圧リスクが最も高い。<br>" +
+      "<b>他電源方式（VT非内蔵）</b>：建物側低圧から制御電源を供給。停電すると保護機能が働かないため、方向性の判定電圧供給の有無に注意。</p>") +
+
+    R("ref-ocr", "OCR 結線（IPR-1500）",
+      svgCtt() +
+      "<p><b>CTT接続</b>：正面から見て 左＝白線（R相）／中＝アース線／右＝黒線（T相）。<b>ネジは2枚あるので注意</b>。事前に低圧メガ・テスタで導通確認する。</p>" +
+      "<p><b>トリップ線</b>：VCBをまたぐようにコモンを取り、VCBの遮断タイミングを計測する。R相・T相は同じ所に噛ませてよい。</p>" +
+      "<p><b>結線確認手順</b>（電流レンジ 5A・2.5A）：</p><ul>" +
+      "<li>R相に流す → <b>R・S に流れ、T には流れない</b>こと。</li>" +
+      "<li>T相に流す → <b>S・T に流れ、R には流れない</b>こと。</li></ul>" +
+      "<p>標準配線がない場合は、アース線＋圧着端子で渡り線を自作する。露出部はビニルテープで確実に絶縁すること。</p>" +
+      "<p><b>判定</b>：限時＝整定±" + CRITERIA.relay.OCR.limTol + "%、瞬時＝整定±" + CRITERIA.relay.OCR.instTol + "%。" +
+      "瞬時動作時間は 連動 " + CRITERIA.relay.OCR.instTime["連動"] + "s以内（0.05s＋遮断器3サイクル）／単体 " + CRITERIA.relay.OCR.instTime["単体"] + "s以内。</p>") +
+
+    R("ref-ovr", "OVR / UVR / OVGR 結線",
+      "<p>P1・P2 に電圧要素と補助電源、警報接点にトリップ線 — <b>計4本</b>。</p>" +
+      "<ul><li><b>C.check</b> で音による導通確認を行う。</li>" +
+      "<li>設定モードで％セット → 試験モードで印加、の順。</li></ul>" +
+      '<table class="tbl"><tr><th>種別</th><th>動作値</th><th>復帰値</th><th>動作時間</th></tr>' +
+      "<tr><td>OVR(59)</td><td>整定±5%</td><td>動作値の95.0%以上</td><td>タップ120%急変で 時間整定±10.0%</td></tr>" +
+      "<tr><td>UVR(27)</td><td>整定±5%</td><td>動作値の105.0%以下</td><td>110V→タップ70%急変で 時間整定±10.0%</td></tr>" +
+      "<tr><td>OVGR(64)</td><td>整定±5%</td><td>動作値の95.0%以上</td><td>タップ150%急変で 時間整定±5.0%</td></tr></table>") +
+
+    R("ref-withstand", "耐圧試験の3線一括（VT焼損の原理と防止）",
+      '<div class="warnbox">R・S・T を短絡せずに単相印加すると、PAS内蔵VT（25VA、許容3.8mA程度）が充電電流で焼損する。</div>' +
+      "<p><b>原理</b>：3線を一括せずに1線だけ加圧すると、他の2線との間にケーブル静電容量を介した充電電流が流れる。この電流がVT一次側を通ってしまい、VTの許容電流（25VAクラスで数mA程度）をたやすく超えるため、巻線が焼損する。</p>" +
+      "<p><b>防止策</b>：</p><ul>" +
+      "<li>R・S・T を<b>確実に短絡（一括）</b>してから印加する。</li>" +
+      "<li>VT内蔵PASは <b>P1・P2 を切り離す</b>（逆加圧防止）。</li>" +
+      "<li>印加前に充電電流の目安を把握し、試験器の電流計を監視する。</li></ul>") +
+
+    R("ref-megger", "高圧メガーの使い方",
+      "<ul><li><b>G方式</b>：ガード端子を使いシース表面の漏れ電流を除去 → 絶縁体そのものの抵抗を測る。電源側で使用。</li>" +
+      "<li><b>E方式</b>：ライン－アース間の合成。負荷側はこちらのみ。</li>" +
+      "<li>読みは<b>1分値</b>。</li>" +
+      "<li><b>放電棒は使用前に1MΩ以上あることを確認</b>してから使う。</li>" +
+      "<li>測定後は必ず放電してから触れる。</li></ul>" +
+      '<table class="tbl"><tr><th>対象</th><th>方式</th><th>良</th><th>要注意</th></tr>' +
+      "<tr><td>ケーブル絶縁体</td><td>G</td><td>10GΩ以上</td><td>10GΩ未満〜1GΩ以上</td></tr>" +
+      "<tr><td>ケーブル絶縁体</td><td>E</td><td>5GΩ以上</td><td>—</td></tr>" +
+      "<tr><td>ケーブルシース</td><td>E</td><td>1MΩ以上</td><td>—</td></tr>" +
+      "<tr><td>母線・機器</td><td>E</td><td>5GΩ以上／0.1GΩ以上かつ弱点比3未満</td><td>0.1GΩ以上かつ弱点比3以上</td></tr></table>" +
+      "<p>リーク音・キック現象があれば数値によらず<b>不良</b>。</p>") +
+
+    R("ref-earth", "接地抵抗計 / アースチェッカー / クランプ",
+      "<p><b>接地抵抗計（3極法）</b>：E-P-C を<b>約10m間隔</b>で一直線に配置。測定前に<b>地電圧10V以下</b>を確認する。渡り線の脱着は必ず停電状態で（B種の活線外しは厳禁）。</p>" +
+      "<p><b>アースチェッカー（2点法）</b>：D種の簡易判定。<b>音が鳴ればOK</b>。<br>" +
+      "・室外機 → 側面のラジエーター部に噛ませる<br>・自販機 → 下部の金属銘板</p>" +
+      "<p><b>クランプリークメータ</b>：B種接地線でIo（全漏えい）とIgr（抵抗分）を測る。低圧電路の漏えい電流は1mA以下が基準。</p>" +
+      "<p><b>短絡検知器</b>：<b>接地線を先に付け、外すときは印加線を先に外す</b>。</p>" +
+      '<table class="tbl"><tr><th>種別</th><th>基準</th></tr>' +
+      "<tr><td>A種／PAS／LA</td><td>10Ω以下</td></tr>" +
+      "<tr><td>B種</td><td>150 / 300 / 600 ÷ 1線地絡電流 [Ω] 以下</td></tr>" +
+      "<tr><td>C種</td><td>10Ω以下（0.5秒以内遮断なら500Ω以下）</td></tr>" +
+      "<tr><td>D種</td><td>100Ω以下（0.5秒以内遮断なら500Ω以下）</td></tr>" +
+      "<tr><td>鉄骨・補助極</td><td>判定なし（補助極は1000Ω以下が望ましい）</td></tr></table>") +
+
+    R("ref-ctvt", "CT / VT の禁止事項",
+      '<div class="warnbox"><b>CT二次側 開放厳禁</b> — 開放すると二次側に高電圧が誘起し、絶縁破壊・感電に至る。CTTを外すときは必ず短絡状態を保つ。</div>' +
+      '<div class="warnbox"><b>VT二次側 短絡厳禁</b> — 短絡すると過大電流でVTが焼損する。</div>' +
+      "<p>CTTの操作は「短絡してから外す・つないでから短絡を解く」を徹底する。</p>") +
+
+    R("ref-lgr", "LGR / 漏電火災警報器",
+      "<p>整定は一般に <b>" + CRITERIA.relay.LGR.typicalSet + "mA</b>。実測では <b>" + CRITERIA.relay.LGR.actualFrom + "mA 程度から動作域</b>に入るのが目安。</p>" +
+      "<p>トランス内部点検とは<b>3年周期で交互に実施</b>する運用が一般的。実施年はメモ欄に残す。</p>") +
+
+    R("ref-criteria", "判定基準の一覧（アプリ内蔵値）",
+      "<p>本アプリが自動判定に使う値です。基準改訂・社内ルール差異があれば <code>CRITERIA</code> を書き換えてください。</p>" +
+      '<table class="tbl"><tr><th>項目</th><th>基準</th></tr>' +
+      "<tr><td>OCR 限時 最小動作電流</td><td>整定 ±" + CRITERIA.relay.OCR.limTol + "%</td></tr>" +
+      "<tr><td>OCR 瞬時 最小動作電流</td><td>整定 ±" + CRITERIA.relay.OCR.instTol + "%</td></tr>" +
+      "<tr><td>OCR 瞬時 動作時間</td><td>連動 " + CRITERIA.relay.OCR.instTime["連動"] + "s以内／単体 " + CRITERIA.relay.OCR.instTime["単体"] + "s以内</td></tr>" +
+      "<tr><td>GR/DGR 最小動作電流</td><td>整定 ±" + CRITERIA.relay.GR.iTol + "%</td></tr>" +
+      "<tr><td>DGR 最小動作電圧</td><td>整定 ±" + CRITERIA.relay.GR.vTol + "%</td></tr>" +
+      "<tr><td>GR/DGR 動作時間（整定130%）</td><td>単体 0.1〜0.3s／連動 0.1〜0.4s</td></tr>" +
+      "<tr><td>GR/DGR 慣性不動作</td><td>400%×0.05s で不動作なら合格</td></tr>" +
+      "<tr><td>OVR</td><td>動作±5% / 復帰95%以上 / 時間±10%</td></tr>" +
+      "<tr><td>UVR</td><td>動作±5% / 復帰105%以下 / 時間±10%</td></tr>" +
+      "<tr><td>OVGR</td><td>動作±5% / 復帰95%以上 / 時間±5%</td></tr>" +
+      "<tr><td>低圧絶縁</td><td>150V以下 0.1MΩ / 150超300V以下 0.2MΩ / 300V超 0.4MΩ</td></tr>" +
+      "<tr><td>漏えい電流</td><td>1mA以下</td></tr></table>") +
+    "</div>";
+}
+
+/* =========================================================================
+   8. 設定
+   ========================================================================= */
+function viewSettings() {
+  var n = db.sites.length, bytes = 0;
+  try { bytes = (localStorage.getItem(KEY) || "").length; } catch (e) {}
+  return '<header class="bar"><h1>設定</h1></header><div class="wrap">' +
+    '<div class="card"><h2>データ</h2>' +
+      '<div class="muted small" style="margin-bottom:10px">現場数 ' + n + " 件／保存サイズ 約 " + Math.round(bytes / 1024) + " KB</div>" +
+      '<div class="btnrow">' +
+      '<button class="btn primary" data-act="export-json">JSONエクスポート</button>' +
+      '<button class="btn" data-act="import-json">JSONインポート</button>' +
+      "</div></div>" +
+    '<div class="card"><h2>アプリ</h2>' +
+      '<div class="btnrow"><button class="btn" data-act="reload">更新を確認して再読込</button></div>' +
+      '<div class="muted small" style="margin-top:8px">オフライン対応済み。ホーム画面に追加すると電波のない現場でも起動できます。</div>' +
+    "</div>" +
+    '<div class="card"><h2>免責事項</h2>' +
+      '<div class="muted small">本アプリの自動判定は入力値と内蔵の判定基準に基づく<b>補助機能</b>です。' +
+      "現場条件・設備仕様・電力会社との協調・最新の法令や社内規程により基準は変わります。" +
+      "<b>最終判断は必ず有資格の技術者が行ってください。</b>記録内容の保存はブラウザのlocalStorageに依存するため、" +
+      "定期的にJSONエクスポートによるバックアップを推奨します。</div>" +
+    "</div>" +
+    '<div class="card"><h2>危険な操作</h2>' +
+      '<button class="btn danger wide" data-act="wipe">全データを削除</button></div>' +
+    "</div>";
+}
+
+/* =========================================================================
+   9. テキスト書き出し
+   ========================================================================= */
+function statusLabel(s) { return { ok: "良", warn: "要注意", ng: "不良", na: "—" }[s] || "—"; }
+function siteToText(s) {
+  var L = [];
+  L.push("■ " + (s.name || "（無題の現場）"));
+  L.push("点検日: " + (s.date || "-") + " / 種別: " + s.type + " / 受電電圧: " + (s.voltage || "-"));
+  if (s.ground.length) {
+    L.push(""); L.push("【接地抵抗】");
+    s.ground.forEach(function (r) {
+      var j = judgeGround(r);
+      L.push("・" + (r.name || "-") + " : " + (r.value === "" || r.value === undefined ? "未測定" : r.value + "Ω") +
+        "  [" + statusLabel(j.s) + "] 基準:" + j.ref + (r.method ? " / " + r.method : "") +
+        (has(r.gv) ? " / 地電圧 " + r.gv + "V" : "") + (r.note ? " / " + r.note : ""));
+    });
+  }
+  if (s.hv.length) {
+    L.push(""); L.push("【高圧絶縁抵抗】");
+    s.hv.forEach(function (r) {
+      var j = judgeHv(s, r);
+      var place = { cable: "ケーブル絶縁体", bus: "母線・機器", sheath: "ケーブルシース" }[r.place] || r.place;
+      L.push("・" + place + " " + r.method + "方式 " + r.side + " " + phaseLabel(r.phase) + " : " +
+        (r.value === "" || r.value === undefined ? "未測定" : r.value + (r.unit || "")) +
+        "  [" + statusLabel(j.s) + "]" + (r.place === "bus" && !isNaN(j.wr) ? " 弱点比 " + fmt(j.wr, 2) : "") +
+        (r.leak ? " ※リーク音・キックあり" : "") + (r.note ? " / " + r.note : ""));
+    });
+  }
+  if (s.relays.length) {
+    L.push(""); L.push("【継電器試験】");
+    s.relays.forEach(function (r) {
+      L.push("◆ " + relayTitle(r.type) + (r.label ? "（" + r.label + "）" : ""));
+      var sf = relaySettingFields(r.type).map(function (f) {
+        var v = pick(r.s || {}, f.k); return (v === undefined || v === "") ? null : f.l + "=" + v;
+      }).filter(Boolean);
+      if (sf.length) L.push("  整定: " + sf.join(" / "));
+      relayItems(r).forEach(function (it) {
+        if (it.phases) {
+          ["R", "T"].forEach(function (p) {
+            var v = pick(r.m || {}, it.key + p);
+            L.push("  " + it.label + " " + p + "相: " + (v === undefined || v === "" ? "未測定" : v) +
+              "  [" + statusLabel(it.judge(num(v))) + "]");
+          });
+          L.push("    基準: " + it.ref);
+        } else if (it.type === "select") {
+          var cv = pick(r.m || {}, it.key);
+          L.push("  " + it.label + ": " + (cv || "未実施") + "  [" + statusLabel(it.judgeStr(cv)) + "] 基準: " + it.ref);
+        } else {
+          var v2 = pick(r.m || {}, it.key);
+          L.push("  " + it.label + ": " + (v2 === undefined || v2 === "" ? "未測定" : v2) +
+            "  [" + statusLabel(it.judge(num(v2))) + "] 基準: " + it.ref);
+        }
+      });
+      if (r.note) L.push("  メモ: " + r.note);
+    });
+  }
+  var b = s.bClamp || {};
+  if (has(b.io) || has(b.igr) || s.lv.length) {
+    L.push(""); L.push("【低圧絶縁・漏えい電流】");
+    if (has(b.io) || has(b.igr)) {
+      L.push("・B種接地線クランプ: Io=" + (b.io || "-") + "mA / Igr=" + (b.igr || "-") + "mA  [" + statusLabel(judgeLeak(b.igr).s) + "]" + (b.note ? " / " + b.note : ""));
+    }
+    s.lv.forEach(function (r) {
+      var j = judgeLv(r), k = judgeLeak(r.leak);
+      L.push("・" + (r.name || "-") + " (" + r.cls + ") : 絶縁 " + (r.ir === "" || r.ir === undefined ? "未測定" : r.ir + "MΩ") +
+        " [" + statusLabel(j.s) + "] / 漏えい " + (r.leak === "" || r.leak === undefined ? "未測定" : r.leak + "mA") +
+        " [" + statusLabel(k.s) + "]" + (r.note ? " / " + r.note : ""));
+    });
+  }
+  if (s.memo && s.memo.trim()) { L.push(""); L.push("【自由メモ】"); L.push(s.memo.trim()); }
+  L.push(""); L.push("※判定は補助機能です。最終判断は技術者が行ってください。");
+  return L.join("\n");
+}
+
+/* =========================================================================
+   10. モーダル / 入出力
+   ========================================================================= */
+function modal(html) {
+  var d = document.createElement("div");
+  d.className = "mask";
+  d.innerHTML = '<div class="modal">' + html + "</div>";
+  d.addEventListener("click", function (e) { if (e.target === d) close(); });
+  function close() { if (d.parentNode) d.parentNode.removeChild(d); }
+  d._close = close;
+  document.body.appendChild(d);
+  return d;
+}
+function openNewSite() {
+  var opts = sortedSites().map(function (s) { return '<option value="' + s.id + '">' + esc(s.name || "無題") + "（" + esc(s.date) + "）</option>"; }).join("");
+  var m = modal('<h2>新規現場</h2>' +
+    '<div class="field"><label>現場名</label><input class="in" id="nsName" placeholder="○○ビル キュービクル"></div>' +
+    '<div class="row"><div class="field"><label>点検日</label><input class="in" type="date" id="nsDate" value="' + today() + '"></div>' +
+    '<div class="field"><label>種別</label><select id="nsType">' + SITE_TYPES.map(function (t) { return "<option" + (t === "年次" ? " selected" : "") + ">" + t + "</option>"; }).join("") + "</select></div></div>" +
+    '<div class="field"><label>受電電圧</label><input class="in" id="nsVolt" value="6600V"></div>' +
+    (opts ? '<div class="field"><label>既存現場から項目・整定値を引き継ぐ（任意）</label><select id="nsCopy"><option value="">引き継がない</option>' + opts + "</select></div>" : "") +
+    '<div class="btnrow"><button class="btn" id="nsCancel">キャンセル</button><button class="btn primary" id="nsOk">作成</button></div>');
+  m.querySelector("#nsCancel").onclick = m._close;
+  m.querySelector("#nsOk").onclick = function () {
+    var s = newSite(m.querySelector("#nsName").value.trim());
+    s.date = m.querySelector("#nsDate").value || today();
+    s.type = m.querySelector("#nsType").value;
+    s.voltage = m.querySelector("#nsVolt").value;
+    var cid = m.querySelector("#nsCopy") ? m.querySelector("#nsCopy").value : "";
+    if (cid) {
+      var src = db.sites.filter(function (x) { return x.id === cid; })[0];
+      if (src) {
+        s.ground = src.ground.map(function (r) { var c = JSON.parse(JSON.stringify(r)); c.id = uid(); c.value = ""; c.gv = ""; c.note = ""; return c; });
+        s.hv = src.hv.map(function (r) { var c = JSON.parse(JSON.stringify(r)); c.id = uid(); c.value = ""; c.leak = false; c.wrManual = ""; c.note = ""; return c; });
+        s.lv = src.lv.map(function (r) { var c = JSON.parse(JSON.stringify(r)); c.id = uid(); c.ir = ""; c.leak = ""; c.note = ""; return c; });
+        s.relays = src.relays.map(function (r) { var c = JSON.parse(JSON.stringify(r)); c.id = uid(); c.m = {}; return c; });
+        if (!s.name) s.name = src.name;
+      }
+    }
+    db.sites.push(s); save(); m._close();
+    ui.siteId = s.id; ui.screen = "site"; ui.tab = "ground"; render();
+  };
+  setTimeout(function () { var i = m.querySelector("#nsName"); if (i) i.focus(); }, 50);
+}
+function copyText(text, ta) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function () { toast("コピーしました"); }, function () { legacy(); });
+  } else legacy();
+  function legacy() {
+    try { ta.focus(); ta.select(); ta.setSelectionRange(0, 999999); document.execCommand("copy"); toast("コピーしました"); }
+    catch (e) { toast("コピーできませんでした。長押しで選択してください"); }
+  }
+}
+function openExportText() {
+  var s = site(); if (!s) return;
+  var t = siteToText(s);
+  var m = modal("<h2>テキスト書き出し</h2>" +
+    '<textarea id="exTa" style="min-height:300px;font-size:13px">' + esc(t) + "</textarea>" +
+    '<div class="btnrow" style="margin-top:10px"><button class="btn" id="exClose">閉じる</button>' +
+    '<button class="btn primary" id="exCopy">全文をコピー</button></div>');
+  m.querySelector("#exClose").onclick = m._close;
+  m.querySelector("#exCopy").onclick = function () { copyText(t, m.querySelector("#exTa")); };
+}
+function exportJson() {
+  var data = JSON.stringify({ app: "hoan", version: 1, exported: new Date().toISOString(), sites: db.sites }, null, 2);
+  var name = "hoan-backup-" + today() + ".json";
+  try {
+    var blob = new Blob([data], { type: "application/json" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a"); a.href = url; a.download = name; document.body.appendChild(a); a.click();
+    setTimeout(function () { URL.revokeObjectURL(url); a.remove(); }, 500);
+    toast("エクスポートしました");
+  } catch (e) {
+    var m = modal("<h2>JSON（手動コピー）</h2><textarea id=\"jTa\" style=\"min-height:300px;font-size:12px\">" + esc(data) + "</textarea>" +
+      '<div class="btnrow" style="margin-top:10px"><button class="btn" id="jC">閉じる</button><button class="btn primary" id="jK">コピー</button></div>');
+    m.querySelector("#jC").onclick = m._close;
+    m.querySelector("#jK").onclick = function () { copyText(data, m.querySelector("#jTa")); };
+  }
+}
+function importJson() {
+  var m = modal("<h2>JSONインポート</h2>" +
+    '<div class="field"><label>ファイルを選択</label><input class="in" type="file" id="imF" accept="application/json,.json"></div>' +
+    '<div class="field"><label>またはJSONを貼り付け</label><textarea id="imT" style="min-height:140px;font-size:12px"></textarea></div>' +
+    '<div class="field"><label>取り込み方法</label><select id="imMode">' +
+    '<option value="merge">追加（同じIDは上書き）</option><option value="replace">全置換（現在のデータを破棄）</option></select></div>' +
+    '<div class="btnrow"><button class="btn" id="imC">キャンセル</button><button class="btn primary" id="imOk">取り込む</button></div>');
+  m.querySelector("#imC").onclick = m._close;
+  m.querySelector("#imF").onchange = function (e) {
+    var f = e.target.files && e.target.files[0]; if (!f) return;
+    var fr = new FileReader();
+    fr.onload = function () { m.querySelector("#imT").value = String(fr.result); };
+    fr.readAsText(f);
+  };
+  m.querySelector("#imOk").onclick = function () {
+    var raw = m.querySelector("#imT").value.trim();
+    if (!raw) { toast("データがありません"); return; }
+    var o; try { o = JSON.parse(raw); } catch (e) { alert("JSONの形式が不正です: " + e.message); return; }
+    var arr = Array.isArray(o) ? o : (o && Array.isArray(o.sites) ? o.sites : null);
+    if (!arr) { alert("sites 配列が見つかりません"); return; }
+    var mode = m.querySelector("#imMode").value;
+    if (mode === "replace") {
+      if (!confirm("現在の " + db.sites.length + " 件を破棄して置き換えます。よろしいですか？")) return;
+      db.sites = arr.map(normalizeSite);
+    } else {
+      arr.map(normalizeSite).forEach(function (s) {
+        var i = db.sites.findIndex(function (x) { return x.id === s.id; });
+        if (i >= 0) db.sites[i] = s; else db.sites.push(s);
+      });
+    }
+    save(); m._close(); toast("取り込みました（" + arr.length + "件）"); render();
+  };
+}
+function normalizeSite(s) {
+  var o = newSite();
+  o.id = s.id || uid(); o.name = s.name || ""; o.voltage = s.voltage || ""; o.date = s.date || "";
+  o.type = SITE_TYPES.indexOf(s.type) >= 0 ? s.type : "年次"; o.created = s.created || Date.now();
+  o.ground = Array.isArray(s.ground) ? s.ground : []; o.hv = Array.isArray(s.hv) ? s.hv : [];
+  o.relays = Array.isArray(s.relays) ? s.relays : []; o.lv = Array.isArray(s.lv) ? s.lv : [];
+  o.bClamp = s.bClamp || { io: "", igr: "", note: "" }; o.memo = s.memo || "";
+  o.ground.forEach(function (r) { if (!r.id) r.id = uid(); });
+  o.hv.forEach(function (r) { if (!r.id) r.id = uid(); });
+  o.relays.forEach(function (r) { if (!r.id) r.id = uid(); if (!r.s) r.s = {}; if (!r.m) r.m = {}; });
+  o.lv.forEach(function (r) { if (!r.id) r.id = uid(); });
+  return o;
+}
+
+/* =========================================================================
+   11. イベント
+   ========================================================================= */
+function setBind(path, value) {
+  var s = site();
+  var p = path.split(":");
+  if (p[0] === "site") { if (!s) return; s[p[1]] = value; }
+  else if (p[0] === "bclamp") { if (!s) return; if (!s.bClamp) s.bClamp = {}; s.bClamp[p[1]] = value; }
+  else if (p[0] === "relay") {
+    var r = s.relays.filter(function (x) { return x.id === p[1]; })[0]; if (!r) return;
+    put(r, p[2], value);
+  } else {
+    var arr = s[p[0] === "ground" ? "ground" : p[0]];
+    var row = arr.filter(function (x) { return x.id === p[1]; })[0]; if (!row) return;
+    row[p[2]] = value;
+    if (p[0] === "ground" && p[2] === "bBaseLabel") row.bBase = CRITERIA.ground.bBases[value] || "";
+  }
+  save();
+}
+document.addEventListener("input", function (e) {
+  var t = e.target;
+  if (t.dataset && t.dataset.act === "search") { ui.q = t.value; var pos = t.selectionStart; render();
+    var i = app.querySelector('[data-act="search"]'); if (i) { i.focus(); try { i.setSelectionRange(pos, pos); } catch (x) {} } return; }
+  if (!t.dataset || !t.dataset.bind) return;
+  setBind(t.dataset.bind, t.type === "checkbox" ? t.checked : t.value);
+  refreshJudge();
+});
+document.addEventListener("change", function (e) {
+  var t = e.target;
+  if (!t.dataset || !t.dataset.bind) return;
+  setBind(t.dataset.bind, t.type === "checkbox" ? t.checked : t.value);
+  // select変更で表示項目自体が変わるものは再描画
+  var b = t.dataset.bind;
+  if (/:(kind|place|method|side|phase|cls|type)$/.test(b) || /:s\.link$/.test(b) || b === "site:type") render();
+  else refreshJudge();
+});
+document.addEventListener("click", function (e) {
+  var b = e.target.closest("[data-act]"); if (!b) return;
+  var act = b.dataset.act, s = site();
+  if (act === "nav") { ui.screen = b.dataset.screen; render(); window.scrollTo(0, 0); return; }
+  if (act === "open") { ui.siteId = b.dataset.id; ui.screen = "site"; ui.tab = "ground"; render(); window.scrollTo(0, 0); return; }
+  if (act === "newsite") { openNewSite(); return; }
+  if (act === "tab") { ui.tab = b.dataset.tab; render(); return; }
+  if (act === "goref") { ui.screen = "ref"; ui.refJump = b.dataset.ref; render(); return; }
+  if (act === "export-text") { openExportText(); return; }
+  if (act === "export-json") { exportJson(); return; }
+  if (act === "import-json") { importJson(); return; }
+  if (act === "reload") { if ("serviceWorker" in navigator) { navigator.serviceWorker.getRegistrations().then(function (rs) {
+      rs.forEach(function (r) { r.update(); }); setTimeout(function () { location.reload(); }, 400); }); } else location.reload(); return; }
+  if (act === "wipe") {
+    if (!confirm("全ての現場データを削除します。取り消せません。続けますか？")) return;
+    if (!confirm("本当に削除します。エクスポートは済んでいますか？")) return;
+    db.sites = []; save(); ui.screen = "home"; render(); toast("全データを削除しました"); return;
+  }
+  if (!s) return;
+  if (act === "add") {
+    var c = b.dataset.cat;
+    if (c === "ground") s.ground.push({ id: uid(), name: "", kind: "A", value: "", method: "3極法", gv: "", note: "", fast: false, bCap: "", bBaseLabel: "", bBase: "", bIg: "", bManual: "" });
+    if (c === "hv") s.hv.push({ id: uid(), place: "cable", method: "G", side: "電源側", phase: "3線一括", value: "", unit: "GΩ", leak: false, wrManual: "", note: "" });
+    if (c === "lv") s.lv.push({ id: uid(), name: "", cls: "150V以下", ir: "", leak: "", note: "" });
+    save(); render(); return;
+  }
+  if (act === "del") {
+    if (!confirm("この項目を削除しますか？")) return;
+    var cat = b.dataset.cat, id = b.dataset.id;
+    s[cat] = s[cat].filter(function (x) { return x.id !== id; });
+    save(); render(); return;
+  }
+  if (act === "tmpl-ground") {
+    GROUND_TEMPLATE.forEach(function (t) {
+      s.ground.push({ id: uid(), name: t.name, kind: t.kind, value: "", method: "3極法", gv: "", note: "", fast: false, bCap: "", bBaseLabel: "", bBase: "", bIg: "", bManual: "" });
+    });
+    save(); render(); return;
+  }
+  if (act === "tmpl-hv") {
+    ["R", "S", "T"].forEach(function (p) {
+      s.hv.push({ id: uid(), place: "cable", method: "G", side: "電源側", phase: p, value: "", unit: "GΩ", leak: false, wrManual: "", note: "" });
+    });
+    save(); render(); return;
+  }
+  if (act === "addrelay") {
+    var sel = document.getElementById("relayAdd"); if (!sel) return;
+    s.relays.push({ id: uid(), type: sel.value, label: "", s: {}, m: {}, note: "" });
+    save(); render(); return;
+  }
+  if (act === "loadpreset") {
+    var r = s.relays.filter(function (x) { return x.id === b.dataset.id; })[0]; if (!r) return;
+    var p = prevSite(s);
+    if (!p) { toast("同じ現場名の過去記録がありません"); return; }
+    var src = p.relays.filter(function (x) { return x.type === r.type; })[0];
+    if (!src) { toast("前回に同じ種別の継電器がありません"); return; }
+    r.s = JSON.parse(JSON.stringify(src.s || {}));
+    if (!r.label) r.label = src.label || "";
+    save(); render(); toast("前回（" + p.date + "）の整定値を読み込みました"); return;
+  }
+});
+
+/* =========================================================================
+   12. 起動
+   ========================================================================= */
+load();
+render();
+if ("serviceWorker" in navigator && location.protocol.indexOf("http") === 0) {
+  window.addEventListener("load", function () {
+    navigator.serviceWorker.register("sw.js").catch(function (e) { console.warn("SW登録失敗", e); });
+  });
+}
+</script>
+</body>
+</html>
