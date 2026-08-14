@@ -34,41 +34,49 @@ body{
 }
 .bar h1{font-size:17px;margin:0;font-weight:600;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .bar .iconbtn{
-  min-width:44px;min-height:44px;border:0;background:rgba(255,255,255,.14);color:#fff;
+  min-width:48px;min-height:48px;border:0;background:rgba(255,255,255,.14);color:#fff;
   border-radius:var(--r);font-size:15px;font-weight:600;cursor:pointer;padding:0 10px;
 }
 .bar .iconbtn:active{background:rgba(255,255,255,.28)}
+/* ヘッダ＋タブを1つの sticky にまとめる（実機のセーフエリアでもズレない） */
+.stickytop{position:sticky;top:0;z-index:30;background:var(--bg);box-shadow:0 2px 6px rgba(16,32,60,.10)}
+.stickytop .bar{position:static;box-shadow:none}
 /* ---------- layout ---------- */
 .wrap{padding:12px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px;margin:0 0 12px}
 .card.tight{padding:10px}
 .card h2{font-size:15px;margin:0 0 10px;font-weight:700}
 .card h3{font-size:14px;margin:14px 0 8px;font-weight:700;color:#2c3a4d}
-.row{display:flex;gap:8px;flex-wrap:wrap}
-.row>*{flex:1 1 0;min-width:0}
+/* 既定はスマホ縦画面：1列。560px以上で初めて2列に戻す */
+.row{display:flex;flex-direction:column;gap:0}
+.row>*{min-width:0}
+.row.pair{flex-direction:row;gap:8px}
+.row.pair>*{flex:1 1 0}
 .field{margin:0 0 10px}
-.field label,.lbl{display:block;font-size:12px;color:var(--muted);margin:0 0 4px;font-weight:600}
+.field label,.lbl{display:block;font-size:12.5px;color:var(--muted);margin:0 0 5px;font-weight:600}
 .in,select,textarea{
-  width:100%;min-height:44px;padding:10px 12px;border:1px solid var(--line);border-radius:var(--r);
+  width:100%;min-height:48px;padding:11px 12px;border:1px solid var(--line);border-radius:var(--r);
   background:#fff;color:var(--text);font-size:16px;font-family:inherit;
 }
 select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,#8794a6 50%),linear-gradient(135deg,#8794a6 50%,transparent 50%);
-  background-position:calc(100% - 18px) 20px,calc(100% - 12px) 20px;background-size:6px 6px,6px 6px;background-repeat:no-repeat;padding-right:34px}
+  background-position:calc(100% - 18px) 22px,calc(100% - 12px) 22px;background-size:6px 6px,6px 6px;background-repeat:no-repeat;padding-right:34px;
+  text-overflow:ellipsis}
 textarea{min-height:120px;line-height:1.6}
 .in:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:var(--accent)}
 .btn{
   display:inline-flex;align-items:center;justify-content:center;gap:6px;
-  min-height:44px;padding:0 16px;border-radius:var(--r);border:1px solid var(--line);
+  min-height:48px;padding:0 16px;border-radius:var(--r);border:1px solid var(--line);
   background:#fff;color:var(--text);font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;
 }
 .btn:active{background:var(--line2)}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
 .btn.ghost{background:var(--accent-weak);border-color:#cfe0f8;color:#12508f}
-.btn.sm{min-height:44px;padding:0 12px;font-size:14px}
+.btn.sm{min-height:46px;padding:0 12px;font-size:14px}
 .btn.wide{width:100%}
 .btn.danger{color:var(--ng-fg);border-color:var(--ng-line);background:#fff}
+/* スマホでは1ボタン1行（細長い横並びを作らない） */
 .btnrow{display:flex;gap:8px;flex-wrap:wrap}
-.btnrow>.btn{flex:1 1 auto}
+.btnrow>.btn{flex:1 1 100%}
 .muted{color:var(--muted);font-size:13px}
 .small{font-size:12px}
 .hr{height:1px;background:var(--line2);margin:12px 0}
@@ -84,14 +92,15 @@ textarea{min-height:120px;line-height:1.6}
 .notice ul{margin:6px 0 0;padding-left:18px}
 .notice li{margin:2px 0}
 /* ---------- tabs ---------- */
-.tabs{display:flex;gap:6px;overflow-x:auto;padding:10px 12px 0;position:sticky;top:calc(env(safe-area-inset-top) + 60px);background:var(--bg);z-index:20;-webkit-overflow-scrolling:touch}
-.tabs::-webkit-scrollbar{display:none}
+/* スマホ：5タブを1行に均等配置（横スクロールなしで全部見える）。ラベルは略称 */
+.tabs{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;padding:8px 12px;background:var(--bg)}
 .tab{
-  flex:0 0 auto;min-height:44px;padding:0 14px;display:flex;align-items:center;
+  min-height:46px;padding:0 2px;display:flex;align-items:center;justify-content:center;text-align:center;
   border:1px solid var(--line);border-radius:999px;background:#fff;color:#42506a;
-  font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit;
+  font-size:12.5px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit;line-height:1.2;
 }
 .tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+.tw{display:none} /* 画面が広いときだけ出す語尾 */
 /* ---------- list ---------- */
 .site{display:block;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px;margin:0 0 10px;cursor:pointer;font-family:inherit;font-size:16px;color:inherit}
 .site .t{font-weight:700;font-size:16px}
@@ -106,11 +115,14 @@ textarea{min-height:120px;line-height:1.6}
 .item{border:1px solid var(--line);border-radius:var(--r);padding:10px;margin:0 0 10px;background:#fff}
 .item>.head{display:flex;align-items:center;gap:8px;margin-bottom:8px}
 .item>.head .name{flex:1}
-.del{min-width:44px;min-height:44px;border:1px solid var(--line);background:#fff;border-radius:var(--r);color:var(--ng-fg);font-size:18px;cursor:pointer;line-height:1}
-.jslot{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px;color:var(--muted);min-height:30px}
+.del{min-width:48px;min-height:48px;border:1px solid var(--line);background:#fff;border-radius:var(--r);color:var(--ng-fg);font-size:18px;cursor:pointer;line-height:1}
+/* 判定は現場で一番見たい情報なので枠で囲って目立たせる */
+.jslot{margin-top:10px;padding:9px 10px;background:#f6f9fd;border:1px solid var(--line2);border-radius:8px;
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);min-height:34px}
+.jslot .badge{font-size:14px;padding:4px 12px}
 .jslot .ref{color:var(--muted)}
 .prev{font-size:12px;color:#8b95a6}
-.check{display:flex;align-items:center;gap:10px;min-height:44px;font-size:14px;cursor:pointer;user-select:none}
+.check{display:flex;align-items:center;gap:10px;min-height:48px;font-size:14px;cursor:pointer;user-select:none}
 .check input{width:22px;height:22px;flex:0 0 auto;accent-color:var(--accent)}
 .mrow{display:grid;grid-template-columns:1fr;gap:8px;margin:0 0 10px}
 .mline{border:1px solid var(--line2);border-radius:8px;padding:8px;background:#fbfcfe}
@@ -158,6 +170,20 @@ details.ref .body li{margin:4px 0}
   background:#1b2430;color:#fff;padding:10px 16px;border-radius:999px;font-size:14px;z-index:80;opacity:0;transition:opacity .18s;pointer-events:none}
 .toast.on{opacity:.96}
 .empty{text-align:center;color:var(--muted);padding:40px 16px;font-size:14px}
+/* ---------- 画面が広いとき（横向きスマホ・タブレット・PC）だけ2列に戻す ---------- */
+@media (min-width:560px){
+  .row{flex-direction:row;gap:8px}
+  .row>*{flex:1 1 0}
+  .tabs{display:flex;flex-wrap:wrap;gap:8px}
+  .tab{flex:0 0 auto;padding:0 16px;font-size:14px}
+  .tw{display:inline}
+  .btnrow>.btn{flex:1 1 auto}
+  .wrap{padding:14px}
+}
+@media (min-width:760px){
+  #app{max-width:760px}
+  .card{padding:16px}
+}
 </style>
 </head>
 <body>
@@ -549,16 +575,17 @@ function viewSite() {
   var s = site();
   if (!s) { ui.screen = "home"; return viewHome(); }
   var p = progress(s), prev = prevSite(s);
-  var tabs = [["ground", "接地抵抗"], ["hv", "高圧絶縁"], ["relay", "継電器試験"], ["lv", "低圧絶縁・漏洩"], ["memo", "自由メモ"]]
+  var tabs = [["ground", '接地<span class="tw">抵抗</span>'], ["hv", '高圧<span class="tw">絶縁</span>'],
+              ["relay", '継電器<span class="tw">試験</span>'], ["lv", '低圧<span class="tw">・漏洩</span>'], ["memo", "メモ"]]
     .map(function (t) { return '<button class="tab" role="tab" aria-selected="' + (ui.tab === t[0]) + '" data-act="tab" data-tab="' + t[0] + '">' + t[1] + "</button>"; }).join("");
   var body = ui.tab === "ground" ? tabGround(s, prev) : ui.tab === "hv" ? tabHv(s, prev)
     : ui.tab === "relay" ? tabRelay(s) : ui.tab === "lv" ? tabLv(s, prev) : tabMemo(s);
-  return '<header class="bar">' +
-    '<button class="iconbtn" data-act="nav" data-screen="home">‹ 戻る</button>' +
+  return '<div class="stickytop"><header class="bar">' +
+    '<button class="iconbtn" data-act="nav" data-screen="home">‹</button>' +
     "<h1>" + esc(s.name || "（無題の現場）") + "</h1>" +
     '<button class="iconbtn" data-act="export-text">出力</button>' +
     "</header>" +
-    '<div class="tabs" role="tablist">' + tabs + "</div>" +
+    '<div class="tabs" role="tablist">' + tabs + "</div></div>" +
     '<div class="wrap">' +
     '<div class="card">' +
       '<div class="field"><label>現場名</label><input class="in" data-bind="site:name" value="' + esc(s.name) + '"></div>' +
@@ -651,7 +678,7 @@ function tabHv(s, prev) {
         '<div class="field"><label>相</label><select data-bind="hv:' + r.id + ':phase">' +
           PH.map(function (m) { return '<option' + (r.phase === m ? " selected" : "") + ">" + m + "</option>"; }).join("") + "</select></div>" +
       "</div>" +
-      '<div class="row">' +
+      '<div class="row pair">' +
         '<div class="field" style="flex:2 1 0"><label>測定値（1分値）</label><input class="in" inputmode="decimal" data-bind="hv:' + r.id + ':value" value="' + esc(r.value) + '"></div>' +
         '<div class="field unit"><label>単位</label><select data-bind="hv:' + r.id + ':unit">' +
           ["GΩ", "MΩ"].map(function (m) { return '<option' + (r.unit === m ? " selected" : "") + ">" + m + "</option>"; }).join("") + "</select></div>" +
@@ -698,7 +725,7 @@ function tabRelay(s) {
           ["R", "T"].map(function (p) {
             return '<div class="ph"><span class="pl">' + p + "相</span>" +
               '<input class="in" inputmode="decimal" data-bind="relay:' + r.id + ":m." + it.key + p + '" value="' + esc(pick(r.m || {}, it.key + p)) + '">' +
-              '<span class="jslot" data-jslot="relay:' + r.id + ":" + it.key + p + '" style="flex:0 0 auto;border:0;margin:0;padding:0"></span></div>';
+              '<span class="jslot" data-jslot="relay:' + r.id + ":" + it.key + p + '" style="flex:0 0 auto;border:0;margin:0;padding:0;background:none;min-height:0"></span></div>';
           }).join("") +
           '<div class="jslot" data-jslot="relay:' + r.id + ":" + it.key + '"></div></div>';
       }
