@@ -102,7 +102,9 @@ textarea{min-height:120px;line-height:1.6}
 .tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
 .tw{display:none} /* 画面が広いときだけ出す語尾 */
 /* ---------- list ---------- */
-.site{display:block;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px;margin:0 0 10px;cursor:pointer;font-family:inherit;font-size:16px;color:inherit}
+.site{display:flex;gap:8px;align-items:stretch;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px;margin:0 0 10px}
+.site-open{flex:1 1 auto;min-width:0;text-align:left;background:none;border:0;padding:0;cursor:pointer;font-family:inherit;font-size:16px;color:inherit}
+.site-del{flex:0 0 48px;min-height:48px;align-self:center;border:1px solid var(--line);background:#fff;border-radius:var(--r);color:var(--ng-fg);font-size:17px;cursor:pointer;font-family:inherit}
 .site .t{font-weight:700;font-size:16px}
 .site .m{font-size:12.5px;color:var(--muted);margin-top:2px}
 .pbar{height:6px;background:var(--line2);border-radius:999px;overflow:hidden;margin-top:8px}
@@ -169,6 +171,40 @@ details.ref .body li{margin:4px 0}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(80px + env(safe-area-inset-bottom));
   background:#1b2430;color:#fff;padding:10px 16px;border-radius:999px;font-size:14px;z-index:80;opacity:0;transition:opacity .18s;pointer-events:none}
 .toast.on{opacity:.96}
+/* ---------- コンパクト測定行（スクロールを減らすための1行UI） ---------- */
+.crow{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:8px;
+  padding:5px 0;border-bottom:1px solid var(--line2)}
+.crow:last-child{border-bottom:0}
+.crow.col{grid-template-columns:1fr auto}
+.c-head{display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:1px;
+  min-width:0;min-height:48px;padding:4px 0;background:none;border:0;color:inherit;
+  font-family:inherit;text-align:left;cursor:pointer}
+.c-name{font-size:14.5px;font-weight:600;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.c-meta{font-size:11.5px;color:var(--muted);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.c-meta::before{content:"▸ "}
+.crow.open .c-meta::before{content:"▾ "}
+.c-in{display:flex;align-items:center;gap:4px}
+.c-in .in{width:86px;text-align:right;padding:10px 8px}
+.c-u{font-size:12px;color:var(--muted);min-width:16px}
+.c-lines{grid-column:1/-1;padding:0 0 6px}
+.c-line{display:flex;align-items:center;gap:6px;margin-top:6px}
+.c-line .lab{flex:0 0 40px;font-size:12px;color:var(--muted);font-weight:600;text-align:right}
+.c-line .in{flex:0 0 96px;text-align:right;padding:10px 8px}
+.c-line .nm{flex:1 1 auto;min-width:0}
+.jslot.mini{background:none;border:0;padding:0;margin:0;min-height:0;justify-content:flex-end;gap:5px}
+.jslot.mini .badge{font-size:12.5px;padding:3px 9px}
+.jslot.refonly{background:none;border:0;padding:0;margin:0;min-height:0;display:block;
+  font-size:11.5px;color:var(--muted);white-space:normal;line-height:1.35}
+.c-det{grid-column:1/-1;padding:10px;margin:2px 0 8px;background:#fbfcfe;border:1px solid var(--line2);border-radius:8px}
+.c-det .field:last-child{margin-bottom:0}
+.c-det>.jslot{margin-top:0}
+.gear{flex:0 0 48px;min-height:48px;border:1px solid var(--line);background:#fff;border-radius:var(--r);
+  color:#5a6779;font-size:15px;cursor:pointer;font-family:inherit}
+.crow.rel .c-name{white-space:normal;line-height:1.3}
+.crow.rel .c-meta{white-space:normal}
+.btnrow.row2>.btn{flex:1 1 0}
+.hrow{display:flex;align-items:center;gap:8px;margin:0 0 8px}
+.hrow h2{flex:1;margin:0}
 .empty{text-align:center;color:var(--muted);padding:40px 16px;font-size:14px}
 /* ---------- 画面が広いとき（横向きスマホ・タブレット・PC）だけ2列に戻す ---------- */
 @media (min-width:560px){
@@ -230,12 +266,15 @@ var CRITERIA = {
    ========================================================================= */
 var KEY = "hoan.sites.v1";
 var db = { sites: [] };
-var ui = { screen: "home", siteId: null, tab: "ground", q: "", refJump: null };
+var ui = { screen: "home", siteId: null, tab: "ground", q: "", refJump: null,
+           open: {},          // 測定行の詳細を開いているか（行ID → true）
+           openHeader: false  // 現場情報カードを開いているか
+         };
 
 function load() {
   try {
     var raw = localStorage.getItem(KEY);
-    if (raw) { var o = JSON.parse(raw); if (o && Array.isArray(o.sites)) db = o; }
+    if (raw) { var o = JSON.parse(raw); if (o && Array.isArray(o.sites)) { db = o; db.sites.forEach(migrateSite); } }
   } catch (e) { console.warn("load失敗", e); }
 }
 function save() {
@@ -274,21 +313,40 @@ var GROUND_KINDS = [
   { k: "AUXP", label: "補助極P（参考）" }, { k: "AUXC", label: "補助極C（参考）" }
 ];
 var GROUND_TEMPLATE = [
-  { name: "A種（LA・機器外箱）", kind: "A" },
-  { name: "B種（変圧器中性点）", kind: "B" },
-  { name: "D種（低圧機器）", kind: "D" },
-  { name: "PAS", kind: "PAS" }
+  { name: "A種", kind: "A" }, { name: "B種", kind: "B" },
+  { name: "D種", kind: "D" }, { name: "PAS", kind: "PAS" }
 ];
 var SITE_TYPES = ["月次", "年次", "竣工"];
 var CATS = { ground: "接地抵抗", hv: "高圧絶縁", relay: "継電器", lv: "低圧絶縁・漏洩", memo: "自由メモ" };
 var TEMPLATES = { "月次": ["lv", "memo"], "年次": ["ground", "hv", "relay", "lv"], "竣工": ["ground", "hv", "relay", "lv", "memo"] };
 
+function newHv(place, method, side) {
+  return { id: uid(), place: place, method: method, side: side, value: "", v10: "", unit: "GΩ",
+           leak: false, wrManual: "", note: "" };
+}
+/* 高圧絶縁の標準3測定（負荷側E → 電源側G → 電源側E の順） */
+function defaultHv() {
+  return [newHv("bus", "E", "負荷側"), newHv("cable", "G", "電源側"), newHv("cable", "E", "電源側")];
+}
+/* B種接地線のクランプ測定（Igr）。電灯・動力トランス別に行を足せる */
+function newClamp(name) { return { id: uid(), name: name || "", io: "", igr: "", note: "" }; }
 function newSite(name) {
   return {
     id: uid(), name: name || "", voltage: "6600V", date: today(), type: "年次",
     created: Date.now(),
-    ground: [], hv: [], relays: [], lv: [], bClamp: { io: "", igr: "", note: "" }, memo: ""
+    ground: [], hv: defaultHv(), relays: [], lv: [],
+    bClamp: [newClamp("電灯トランス"), newClamp("動力トランス")], memo: ""
   };
+}
+/* 旧形式（bClampが単一オブジェクト）を配列へ移行 */
+function migrateSite(s) {
+  if (s.bClamp && !Array.isArray(s.bClamp)) {
+    var b = s.bClamp;
+    s.bClamp = [{ id: uid(), name: "B種接地線", io: b.io || "", igr: b.igr || "", note: b.note || "" }];
+  }
+  if (!Array.isArray(s.bClamp)) s.bClamp = [newClamp("電灯トランス"), newClamp("動力トランス")];
+  s.bClamp.forEach(function (c) { if (!c.id) c.id = uid(); });
+  return s;
 }
 function site() { for (var i = 0; i < db.sites.length; i++) if (db.sites[i].id === ui.siteId) return db.sites[i]; return null; }
 function sortedSites() {
@@ -307,9 +365,10 @@ function prevSite(s) {
 /* ---- 進捗（チェックリスト） ---- */
 function catFilled(s, c) {
   if (c === "ground") return s.ground.some(function (r) { return has(r.value); });
-  if (c === "hv") return s.hv.some(function (r) { return has(r.value); });
+  if (c === "hv") return s.hv.some(function (r) { return has(r.value) || has(r.v10); });
   if (c === "relay") return s.relays.length > 0;
-  if (c === "lv") return s.lv.some(function (r) { return has(r.ir) || has(r.leak); }) || has(s.bClamp && s.bClamp.io);
+  if (c === "lv") return s.lv.some(function (r) { return has(r.ir) || has(r.leak); }) ||
+    (s.bClamp || []).some(function (b) { return has(b.igr) || has(b.io); });
   if (c === "memo") return !!(s.memo && s.memo.trim());
   return false;
 }
@@ -345,28 +404,34 @@ function judgeGround(r) {
   return { s: s, ref: ref, limit: limit, note: note };
 }
 
-/* ---- 4.2 高圧絶縁抵抗 ---- */
-function toGO(r) { var v = num(r.value); if (isNaN(v)) return NaN; return r.unit === "MΩ" ? v / 1000 : v; }
-function toMO(r) { var v = num(r.value); if (isNaN(v)) return NaN; return r.unit === "MΩ" ? v : v * 1000; }
+/* ---- 4.2 高圧絶縁抵抗（3線一括のみ／E方式は5kV・10kVの2点） ---- */
+var HV_PLACES = [["cable", "ケーブル絶縁体"], ["bus", "母線・機器"], ["sheath", "ケーブルシース"]];
+function placeLabel(p) { var f = HV_PLACES.filter(function (x) { return x[0] === p; })[0]; return f ? f[1] : p; }
+function hvVal(r, w) { return w === "v10" ? r.v10 : r.value; }
+function hvKvLabel(w) { return w === "v10" ? "10kV" : "5kV"; }
+function toGO(r, w) { var v = num(hvVal(r, w)); if (isNaN(v)) return NaN; return r.unit === "MΩ" ? v / 1000 : v; }
+function toMO(r, w) { var v = num(hvVal(r, w)); if (isNaN(v)) return NaN; return r.unit === "MΩ" ? v : v * 1000; }
 function hvGroupKey(r) { return r.place + "|" + r.method + "|" + r.side; }
-function phaseLabel(p) { return p === "3線一括" ? "3線一括" : p + "相"; }
+/* 判定の重い方を採る（未測定 < 良 < 要注意 < 不良） */
+function worst(a, b) { var o = { na: 0, ok: 1, warn: 2, ng: 3 }; return (o[a] || 0) >= (o[b] || 0) ? a : b; }
+/* 弱点比＝同じ測定点における 5kV値 と 10kV値 の比（大きい方 ÷ 小さい方）。
+   電源側は電源側の5kV/10kV、負荷側は負荷側の5kV/10kVで取る。
+   印加電圧を上げたときの落ち込みが大きいほど絶縁の弱点が疑われる。 */
 function weakRatio(s, r) {
   if (has(r.wrManual)) return num(r.wrManual);
-  var g = s.hv.filter(function (x) { return hvGroupKey(x) === hvGroupKey(r) && has(x.value); }).map(toGO);
-  if (g.length < 2) return NaN;
-  var mx = Math.max.apply(null, g), mn = Math.min.apply(null, g);
-  if (!(mn > 0)) return NaN;
-  return mx / mn;
+  var a = toGO(r, "v5"), b = toGO(r, "v10");
+  if (isNaN(a) || isNaN(b) || !(a > 0) || !(b > 0)) return NaN;
+  return Math.max(a, b) / Math.min(a, b);
 }
-function judgeHv(s, r) {
+function judgeHv(s, r, w) {
   if (r.leak) return { s: "ng", ref: "リーク音・キック現象あり → 無条件で不良" };
   var C = CRITERIA.hv;
   if (r.place === "sheath") {
-    var m = toMO(r), ref0 = C.sheathE_MO + "MΩ以上=良（シース E方式）";
+    var m = toMO(r, w), ref0 = C.sheathE_MO + "MΩ以上=良（シース E方式）";
     if (isNaN(m)) return { s: "na", ref: ref0 };
     return { s: m >= C.sheathE_MO ? "ok" : "ng", ref: ref0 };
   }
-  var g = toGO(r);
+  var g = toGO(r, w);
   if (r.place === "cable") {
     if (r.method === "G") {
       var refG = C.cableG.ok + "GΩ以上=良 / " + C.cableG.warn + "GΩ以上=要注意";
@@ -377,14 +442,18 @@ function judgeHv(s, r) {
     if (isNaN(g)) return { s: "na", ref: refE };
     return { s: g >= C.cableE.ok ? "ok" : (g >= C.cableE.warn ? "warn" : "ng"), ref: refE };
   }
-  // 母線・機器
   var wr = weakRatio(s, r);
   var refB = C.busE.ok + "GΩ以上=良 / " + C.busE.ng + "〜" + C.busE.ok + "GΩは弱点比" + C.busE.weakRatio + "未満=良・以上=要注意 / " + C.busE.ng + "GΩ未満=不良";
   if (isNaN(g)) return { s: "na", ref: refB, wr: wr };
   if (g >= C.busE.ok) return { s: "ok", ref: refB, wr: wr };
   if (g < C.busE.ng) return { s: "ng", ref: refB, wr: wr };
-  if (isNaN(wr)) return { s: "warn", ref: refB, wr: wr, note: "弱点比が未算出（同条件の測定が2点以上必要）" };
+  if (isNaN(wr)) return { s: "warn", ref: refB, wr: wr, note: "弱点比が未算出（5kVと10kVの両方を入力）" };
   return { s: wr < C.busE.weakRatio ? "ok" : "warn", ref: refB, wr: wr };
+}
+/* G方式は5kVの1点、E方式は5kV/10kVの重い方を総合判定とする */
+function hvOverall(s, r) {
+  if (r.method === "G") return judgeHv(s, r, "v5").s;
+  return worst(judgeHv(s, r, "v5").s, judgeHv(s, r, "v10").s);
 }
 
 /* ---- 4.3 継電器 ---- */
@@ -555,12 +624,15 @@ function viewHome() {
       var ok = catFilled(s, c);
       return '<span class="chip ' + (ok ? "done" : "todo") + '">' + CATS[c] + (ok ? " ✓" : " 未") + "</span>";
     }).join("");
-    return '<button class="site" data-act="open" data-id="' + s.id + '">' +
-      '<div class="t">' + esc(s.name || "（無題の現場）") + "</div>" +
-      '<div class="m">' + esc(s.date || "日付未設定") + "　/　" + esc(s.type) + "　/　" + esc(s.voltage || "-") + "</div>" +
-      '<div class="pbar"><i style="width:' + p.pct + '%"></i></div>' +
-      '<div class="chips"><span class="chip">進捗 ' + p.done.length + "/" + p.req.length + "</span>" + chips + "</div>" +
-      "</button>";
+    return '<div class="site">' +
+      '<button class="site-open" data-act="open" data-id="' + s.id + '">' +
+        '<div class="t">' + esc(s.name || "（無題の現場）") + "</div>" +
+        '<div class="m">' + esc(s.date || "日付未設定") + "　/　" + esc(s.type) + "　/　" + esc(s.voltage || "-") + "</div>" +
+        '<div class="pbar"><i style="width:' + p.pct + '%"></i></div>' +
+        '<div class="chips"><span class="chip">進捗 ' + p.done.length + "/" + p.req.length + "</span>" + chips + "</div>" +
+      "</button>" +
+      '<button class="site-del" data-act="delsite" data-id="' + s.id + '" aria-label="この現場を削除">🗑</button>' +
+      "</div>";
   }).join("");
   return '<header class="bar"><h1>保安管理 点検記録</h1></header>' +
     '<div class="wrap">' +
@@ -587,118 +659,141 @@ function viewSite() {
     "</header>" +
     '<div class="tabs" role="tablist">' + tabs + "</div></div>" +
     '<div class="wrap">' +
-    '<div class="card">' +
-      '<div class="field"><label>現場名</label><input class="in" data-bind="site:name" value="' + esc(s.name) + '"></div>' +
-      '<div class="row">' +
-        '<div class="field"><label>受電電圧</label><input class="in" data-bind="site:voltage" value="' + esc(s.voltage) + '"></div>' +
-        '<div class="field"><label>点検日</label><input class="in" type="date" data-bind="site:date" value="' + esc(s.date) + '"></div>' +
+    '<div class="card tight">' +
+      '<div class="crow col" style="border:0;padding:0">' +
+      '<button class="c-head" data-act="expand-header">' +
+        '<span class="c-name">' + esc(s.date || "日付未設定") + "　" + esc(s.type) + "　" + esc(s.voltage || "-") + "</span>" +
+        '<span class="c-meta">' + p.req.map(function (c) { return CATS[c] + (catFilled(s, c) ? "✓" : "未"); }).join(" / ") + "</span>" +
+      "</button>" +
+      '<span class="badge ' + (p.done.length === p.req.length ? "ok" : "na") + '">' + p.done.length + "/" + p.req.length + "</span>" +
+      (ui.openHeader ?
+        '<div class="c-det">' +
+          '<div class="pbar" style="margin-bottom:8px"><i style="width:' + p.pct + '%"></i></div>' +
+          '<div class="chips" style="margin-bottom:10px">' +
+            p.req.map(function (c) { var ok = catFilled(s, c); return '<span class="chip ' + (ok ? "done" : "todo") + '">' + CATS[c] + (ok ? " ✓" : " 未") + "</span>"; }).join("") +
+          "</div>" +
+          (prev ? '<div class="muted small" style="margin-bottom:8px">前回 ' + esc(prev.date) + " の記録と比較中</div>" : "") +
+          '<div class="field"><label>現場名</label><input class="in" data-bind="site:name" value="' + esc(s.name) + '"></div>' +
+          '<div class="row">' +
+            '<div class="field"><label>受電電圧</label><input class="in" data-bind="site:voltage" value="' + esc(s.voltage) + '"></div>' +
+            '<div class="field"><label>点検日</label><input class="in" type="date" data-bind="site:date" value="' + esc(s.date) + '"></div>' +
+          "</div>" +
+          '<div class="field"><label>種別</label><select data-bind="site:type">' +
+            SITE_TYPES.map(function (t) { return '<option' + (s.type === t ? " selected" : "") + ">" + t + "</option>"; }).join("") + "</select></div>" +
+          '<button class="btn danger wide" data-act="delsite" data-id="' + s.id + '">この現場を削除</button>' +
+        "</div>" : "") +
       "</div>" +
-      '<div class="field"><label>種別</label><select data-bind="site:type">' +
-        SITE_TYPES.map(function (t) { return '<option' + (s.type === t ? " selected" : "") + ">" + t + "</option>"; }).join("") + "</select></div>" +
-      '<div class="pbar"><i style="width:' + p.pct + '%"></i></div>' +
-      '<div class="chips"><span class="chip">' + s.type + "の必須項目 " + p.done.length + "/" + p.req.length + "</span>" +
-        p.req.map(function (c) { var ok = catFilled(s, c); return '<span class="chip ' + (ok ? "done" : "todo") + '">' + CATS[c] + (ok ? " ✓" : " 未") + "</span>"; }).join("") +
-      "</div>" +
-      (prev ? '<div class="muted small" style="margin-top:8px">前回：' + esc(prev.date) + "（" + esc(prev.type) + "）の記録と比較表示中</div>" : "") +
     "</div>" +
     body + "</div>";
 }
 
-/* ---- 接地抵抗タブ ---- */
+/* ---- 接地抵抗タブ（1行=1項目。詳細は行タップで展開） ---- */
+function groundDetail(r) {
+  var kindSel = GROUND_KINDS.map(function (g) { return '<option value="' + g.k + '"' + (r.kind === g.k ? " selected" : "") + ">" + g.label + "</option>"; }).join("");
+  var extra = "";
+  if (r.kind === "C" || r.kind === "D") {
+    extra = '<label class="check"><input type="checkbox" data-bind="ground:' + r.id + ':fast"' + (r.fast ? " checked" : "") +
+      ">0.5秒以内に自動遮断する装置あり（500Ωに緩和）</label>";
+  }
+  if (r.kind === "B") {
+    var bo = Object.keys(CRITERIA.ground.bBases).map(function (k) {
+      return '<option value="' + esc(k) + '"' + (r.bBaseLabel === k ? " selected" : "") + ">" + esc(k) + "（" + CRITERIA.ground.bBases[k] + "）</option>";
+    }).join("");
+    extra =
+      '<div class="mline"><div class="t">B種 基準値の算出（150 / 300 / 600 ÷ 1線地絡電流）</div>' +
+      '<div class="field"><label>変圧器容量 [kVA]（記録用）</label><input class="in" inputmode="decimal" data-bind="ground:' + r.id + ':bCap" value="' + esc(r.bCap) + '"></div>' +
+      '<div class="field"><label>混触時の遮断時間</label><select data-bind="ground:' + r.id + ':bBaseLabel"><option value="">選択</option>' + bo + "</select></div>" +
+      '<div class="field"><label>1線地絡電流 I [A]</label><input class="in" inputmode="decimal" data-bind="ground:' + r.id + ':bIg" value="' + esc(r.bIg) + '"></div>' +
+      '<div class="field"><label>基準値 手入力 [Ω]（優先）</label><input class="in" inputmode="decimal" data-bind="ground:' + r.id + ':bManual" value="' + esc(r.bManual) + '"></div>' +
+      "</div>";
+  }
+  return '<div class="field"><label>項目名</label><input class="in" data-bind="ground:' + r.id + ':name" value="' + esc(r.name) + '" placeholder="項目名"></div>' +
+    '<div class="field"><label>種別</label><select data-bind="ground:' + r.id + ':kind">' + kindSel + "</select></div>" +
+    '<div class="field"><label>測定方式</label><select data-bind="ground:' + r.id + ':method">' +
+      ["3極法", "2点法・アースチェッカー"].map(function (m) { return '<option' + (r.method === m ? " selected" : "") + ">" + m + "</option>"; }).join("") + "</select></div>" +
+    '<div class="field"><label>地電圧 [V]</label><input class="in" inputmode="decimal" data-bind="ground:' + r.id + ':gv" value="' + esc(r.gv) + '"></div>' +
+    extra +
+    '<div class="field"><label>備考</label><input class="in" data-bind="ground:' + r.id + ':note" value="' + esc(r.note) + '"></div>' +
+    '<div class="jslot" data-jslot="ground:' + r.id + '"></div>' +
+    '<div class="btnrow" style="margin-top:8px"><button class="btn danger" data-act="del" data-cat="ground" data-id="' + r.id + '">この行を削除</button></div>';
+}
 function tabGround(s, prev) {
   var rows = s.ground.map(function (r) {
-    var kindSel = GROUND_KINDS.map(function (g) { return '<option value="' + g.k + '"' + (r.kind === g.k ? " selected" : "") + ">" + g.label + "</option>"; }).join("");
-    var extra = "";
-    if (r.kind === "C" || r.kind === "D") {
-      extra = '<label class="check"><input type="checkbox" data-bind="ground:' + r.id + ':fast"' + (r.fast ? " checked" : "") +
-        ">0.5秒以内に自動遮断する装置あり（500Ωに緩和）</label>";
-    }
-    if (r.kind === "B") {
-      var bo = Object.keys(CRITERIA.ground.bBases).map(function (k) {
-        return '<option value="' + esc(k) + '" data-v="' + CRITERIA.ground.bBases[k] + '"' + (r.bBaseLabel === k ? " selected" : "") + ">" + esc(k) + "（" + CRITERIA.ground.bBases[k] + "）</option>";
-      }).join("");
-      extra =
-        '<div class="mline"><div class="t">B種 基準値の算出（150 / 300 / 600 ÷ 1線地絡電流）</div>' +
-        '<div class="field"><label>変圧器容量 [kVA]（記録用）</label><input class="in" inputmode="decimal" data-bind="ground:' + r.id + ':bCap" value="' + esc(r.bCap) + '"></div>' +
-        '<div class="field"><label>混触時の遮断時間</label><select data-bind="ground:' + r.id + ':bBaseLabel"><option value="">選択</option>' + bo + "</select></div>" +
-        '<div class="row">' +
-        '<div class="field"><label>1線地絡電流 I [A]</label><input class="in" inputmode="decimal" data-bind="ground:' + r.id + ':bIg" value="' + esc(r.bIg) + '"></div>' +
-        '<div class="field"><label>基準値 手入力 [Ω]（優先）</label><input class="in" inputmode="decimal" data-bind="ground:' + r.id + ':bManual" value="' + esc(r.bManual) + '"></div>' +
-        "</div></div>";
-    }
-    return '<div class="item">' +
-      '<div class="head"><input class="in name" data-bind="ground:' + r.id + ':name" value="' + esc(r.name) + '" placeholder="項目名">' +
-      '<button class="del" data-act="del" data-cat="ground" data-id="' + r.id + '" aria-label="削除">✕</button></div>' +
-      '<div class="row">' +
-        '<div class="field"><label>測定値 [Ω]</label><input class="in" inputmode="decimal" data-bind="ground:' + r.id + ':value" value="' + esc(r.value) + '"></div>' +
-        '<div class="field"><label>種別</label><select data-bind="ground:' + r.id + ':kind">' + kindSel + "</select></div>" +
-      "</div>" +
-      '<div class="row">' +
-        '<div class="field"><label>測定方式</label><select data-bind="ground:' + r.id + ':method">' +
-          ["3極法", "2点法・アースチェッカー"].map(function (m) { return '<option' + (r.method === m ? " selected" : "") + ">" + m + "</option>"; }).join("") + "</select></div>" +
-        '<div class="field"><label>地電圧 [V]</label><input class="in" inputmode="decimal" data-bind="ground:' + r.id + ':gv" value="' + esc(r.gv) + '"></div>' +
-      "</div>" +
-      extra +
-      '<div class="field"><label>備考</label><input class="in" data-bind="ground:' + r.id + ':note" value="' + esc(r.note) + '"></div>' +
-      '<div class="jslot" data-jslot="ground:' + r.id + '"></div>' +
+    var open = !!ui.open[r.id];
+    var kl = (GROUND_KINDS.filter(function (g) { return g.k === r.kind; })[0] || { label: r.kind }).label;
+    return '<div class="crow' + (open ? " open" : "") + '">' +
+      '<button class="c-head" data-act="expand" data-id="' + r.id + '">' +
+        '<span class="c-name">' + esc(r.name || "（名称未設定）") + "</span>" +
+        '<span class="c-meta">' + esc(kl) + (r.method ? " / " + esc(r.method) : "") + (has(r.gv) ? " / 地電圧" + esc(r.gv) + "V" : "") + "</span>" +
+      "</button>" +
+      '<div class="c-in"><input class="in" inputmode="decimal" data-bind="ground:' + r.id + ':value" value="' + esc(r.value) + '"><span class="c-u">Ω</span></div>' +
+      '<span class="jslot mini" data-jslot="ground:' + r.id + '"></span>' +
+      (open ? '<div class="c-det">' + groundDetail(r) + "</div>" : "") +
       "</div>";
   }).join("");
   return '<div class="card">' +
-    '<div class="notice"><b>⚠ 作業前の必須確認</b><ul>' +
-      "<li>渡り線（連接線）の脱着は<b>必ず停電状態で</b>。B種の活線外しは厳禁。</li>" +
-      "<li>測定前に<b>地電圧 " + CRITERIA.ground.groundVoltageMax + "V以下</b>を確認する。</li>" +
-      "<li>3極法は補助極を約10m間隔で一直線に配置。</li>" +
-      '</ul><button class="btn sm ghost" style="margin-top:8px" data-act="goref" data-ref="ref-earth">📖 接地抵抗計の使い方</button></div>' +
-    "<h2>接地抵抗</h2>" + (rows || '<div class="muted" style="margin-bottom:10px">項目がありません。</div>') +
-    '<div class="btnrow"><button class="btn" data-act="add" data-cat="ground">＋ 行を追加</button>' +
-    '<button class="btn ghost" data-act="tmpl-ground">標準4項目を挿入</button></div>' +
+    '<div class="hrow"><h2>接地抵抗</h2>' +
+      '<button class="btn sm ghost" data-act="goref" data-ref="ref-earth">📖 使い方</button></div>' +
+    '<div class="notice">⚠ 渡り線の脱着は<b>必ず停電状態で</b>（B種の活線外し厳禁）／測定前に<b>地電圧 ' +
+      CRITERIA.ground.groundVoltageMax + "V以下</b>を確認／3極法は補助極を約10m間隔／行をタップで詳細</div>" +
+    (rows || '<div class="muted" style="margin-bottom:10px">項目がありません。</div>') +
+    '<div class="btnrow row2" style="margin-top:10px"><button class="btn" data-act="add" data-cat="ground">＋ 行を追加</button>' +
+    '<button class="btn ghost" data-act="tmpl-ground">標準4項目</button></div>' +
     "</div>";
 }
 
-/* ---- 高圧絶縁タブ ---- */
+/* ---- 高圧絶縁タブ（3線一括のみ／E方式は5kV・10kVの2点） ---- */
+function hvLine(r, w) {
+  var field = (w === "v10") ? "v10" : "value";
+  return '<div class="c-line"><span class="lab">' + hvKvLabel(w) + "</span>" +
+    '<input class="in" inputmode="decimal" data-bind="hv:' + r.id + ":" + field + '" value="' + esc(hvVal(r, w)) + '">' +
+    '<span class="c-u">' + esc(r.unit) + "</span>" +
+    '<span class="jslot mini" data-jslot="hv:' + r.id + ":" + w + '" style="flex:1 1 auto"></span></div>';
+}
+function hvDetail(s, r) {
+  var sideHint = r.side === "電源側" ? "電源側：G方式・E方式の<b>両方</b>を測定する"
+    : "負荷側：<b>E方式のみ</b>（G方式は測定不可）";
+  return '<div class="field"><label>測定箇所</label><select data-bind="hv:' + r.id + ':place">' +
+      HV_PLACES.map(function (p) { return '<option value="' + p[0] + '"' + (r.place === p[0] ? " selected" : "") + ">" + p[1] + "</option>"; }).join("") + "</select></div>" +
+    '<div class="row"><div class="field"><label>測定側</label><select data-bind="hv:' + r.id + ':side">' +
+      ["電源側", "負荷側"].map(function (m) { return '<option' + (r.side === m ? " selected" : "") + ">" + m + "</option>"; }).join("") + "</select></div>" +
+      '<div class="field"><label>方式</label><select data-bind="hv:' + r.id + ':method">' +
+      ["G", "E"].map(function (m) { return '<option value="' + m + '"' + (r.method === m ? " selected" : "") + ">" + m + "方式</option>"; }).join("") + "</select></div></div>" +
+    '<div class="field"><label>単位</label><select data-bind="hv:' + r.id + ':unit">' +
+      ["GΩ", "MΩ"].map(function (m) { return '<option' + (r.unit === m ? " selected" : "") + ">" + m + "</option>"; }).join("") + "</select></div>" +
+    '<div class="muted small" style="margin-bottom:6px">' + sideHint + "（測定は3線一括）</div>" +
+    '<label class="check"><input type="checkbox" data-bind="hv:' + r.id + ':leak"' + (r.leak ? " checked" : "") + ">リーク音・キック現象あり（→ 不良）</label>" +
+    (r.place === "bus" ? '<div class="field"><label>弱点比 手入力（自動算出を上書き）</label><input class="in" inputmode="decimal" data-bind="hv:' + r.id + ':wrManual" value="' + esc(r.wrManual) + '"></div>' : "") +
+    '<div class="field"><label>備考</label><input class="in" data-bind="hv:' + r.id + ':note" value="' + esc(r.note) + '"></div>' +
+    '<div class="jslot" data-jslot="hv:' + r.id + ':full"></div>' +
+    '<div class="btnrow" style="margin-top:8px"><button class="btn danger" data-act="del" data-cat="hv" data-id="' + r.id + '">この測定を削除</button></div>';
+}
 function tabHv(s, prev) {
-  var PL = [["cable", "ケーブル絶縁体"], ["bus", "母線・機器"], ["sheath", "ケーブルシース"]];
-  var PH = ["R", "S", "T", "3線一括"];
   var rows = s.hv.map(function (r) {
-    var sideHint = r.side === "電源側" ? "電源側：G方式・E方式の<b>両方</b>を測定する"
-      : "負荷側：<b>E方式のみ</b>（G方式は測定不可）";
-    return '<div class="item">' +
-      '<div class="head"><div class="name" style="font-weight:700;font-size:14px">' +
-        esc((PL.filter(function (p) { return p[0] === r.place; })[0] || ["", ""])[1]) + "／" + esc(r.method) + "方式／" + esc(r.side) + "／" + esc(phaseLabel(r.phase)) + "</div>" +
-      '<button class="del" data-act="del" data-cat="hv" data-id="' + r.id + '" aria-label="削除">✕</button></div>' +
-      '<div class="row">' +
-        '<div class="field"><label>測定箇所</label><select data-bind="hv:' + r.id + ':place">' +
-          PL.map(function (p) { return '<option value="' + p[0] + '"' + (r.place === p[0] ? " selected" : "") + ">" + p[1] + "</option>"; }).join("") + "</select></div>" +
-        '<div class="field"><label>方式</label><select data-bind="hv:' + r.id + ':method">' +
-          ["G", "E"].map(function (m) { return '<option value="' + m + '"' + (r.method === m ? " selected" : "") + ">" + m + "方式</option>"; }).join("") + "</select></div>" +
-      "</div>" +
-      '<div class="row">' +
-        '<div class="field"><label>測定側</label><select data-bind="hv:' + r.id + ':side">' +
-          ["電源側", "負荷側"].map(function (m) { return '<option' + (r.side === m ? " selected" : "") + ">" + m + "</option>"; }).join("") + "</select></div>" +
-        '<div class="field"><label>相</label><select data-bind="hv:' + r.id + ':phase">' +
-          PH.map(function (m) { return '<option' + (r.phase === m ? " selected" : "") + ">" + m + "</option>"; }).join("") + "</select></div>" +
-      "</div>" +
-      '<div class="row pair">' +
-        '<div class="field" style="flex:2 1 0"><label>測定値（1分値）</label><input class="in" inputmode="decimal" data-bind="hv:' + r.id + ':value" value="' + esc(r.value) + '"></div>' +
-        '<div class="field unit"><label>単位</label><select data-bind="hv:' + r.id + ':unit">' +
-          ["GΩ", "MΩ"].map(function (m) { return '<option' + (r.unit === m ? " selected" : "") + ">" + m + "</option>"; }).join("") + "</select></div>" +
-      "</div>" +
-      '<div class="muted small">' + sideHint + "</div>" +
-      '<label class="check"><input type="checkbox" data-bind="hv:' + r.id + ':leak"' + (r.leak ? " checked" : "") + ">リーク音・キック現象あり（→ 不良）</label>" +
-      (r.place === "bus" ? '<div class="field"><label>弱点比 手入力（自動算出を上書き）</label><input class="in" inputmode="decimal" data-bind="hv:' + r.id + ':wrManual" value="' + esc(r.wrManual) + '"></div>' : "") +
-      '<div class="field"><label>備考</label><input class="in" data-bind="hv:' + r.id + ':note" value="' + esc(r.note) + '"></div>' +
-      '<div class="jslot" data-jslot="hv:' + r.id + '"></div>' +
+    var open = !!ui.open[r.id];
+    var lines = r.method === "E" ? (hvLine(r, "v5") + hvLine(r, "v10"))
+      : ('<div class="c-line"><span class="lab">測定値</span>' +
+         '<input class="in" inputmode="decimal" data-bind="hv:' + r.id + ':value" value="' + esc(r.value) + '">' +
+         '<span class="c-u">' + esc(r.unit) + "</span>" +
+         '<span class="jslot mini" data-jslot="hv:' + r.id + ':v5" style="flex:1 1 auto"></span></div>');
+    return '<div class="crow col' + (open ? " open" : "") + '">' +
+      '<button class="c-head" data-act="expand" data-id="' + r.id + '">' +
+        '<span class="c-name">' + esc(r.side) + " " + esc(r.method) + "方式</span>" +
+        '<span class="c-meta">' + esc(placeLabel(r.place)) + " / 3線一括" + (r.leak ? " / リーク音あり" : "") + "</span>" +
+      "</button>" +
+      '<span class="jslot mini" data-jslot="hv:' + r.id + '"></span>' +
+      '<div class="c-lines">' + lines + "</div>" +
+      (open ? '<div class="c-det">' + hvDetail(s, r) + "</div>" : "") +
       "</div>";
   }).join("");
   return '<div class="card">' +
-    '<div class="notice"><b>測定のポイント</b><ul>' +
-      "<li>高圧メガーは<b>1分値</b>で読む。放電棒は使用前に1MΩ以上あることを確認。</li>" +
-      "<li>電源側は G方式・E方式の両方、負荷側は E方式のみ。</li>" +
-      "<li>弱点比＝同条件グループの<b>最大値 ÷ 最小値</b>（自動算出／手入力で上書き可）。</li>" +
-      '</ul><button class="btn sm ghost" style="margin-top:8px" data-act="goref" data-ref="ref-megger">📖 高圧メガーの使い方</button></div>' +
-    "<h2>高圧絶縁抵抗</h2>" + (rows || '<div class="muted" style="margin-bottom:10px">測定がありません。</div>') +
-    '<div class="btnrow"><button class="btn" data-act="add" data-cat="hv">＋ 測定を追加</button>' +
-    '<button class="btn ghost" data-act="tmpl-hv">R/S/T 3相を一括追加</button></div>' +
+    '<div class="hrow"><h2>高圧絶縁抵抗</h2>' +
+      '<button class="btn sm ghost" data-act="goref" data-ref="ref-megger">📖 使い方</button></div>' +
+    '<div class="notice"><b>1分値</b>で読む／放電棒は使用前に1MΩ以上を確認／測定は<b>3線一括</b>／E方式は<b>5kVと10kV</b>の2点／行をタップで詳細' +
+      '<div class="jslot" data-jslot="weak" style="margin-top:8px"></div></div>' +
+    (rows || '<div class="muted" style="margin-bottom:10px">測定がありません。</div>') +
+    '<div class="btnrow row2" style="margin-top:10px"><button class="btn" data-act="add" data-cat="hv">＋ 測定を追加</button>' +
+    '<button class="btn ghost" data-act="tmpl-hv">標準3測定</button></div>' +
     "</div>";
 }
 
@@ -713,25 +808,31 @@ function tabRelay(s) {
         ' data-bind="relay:' + r.id + ":s." + f.k + '" value="' + esc(v) + '"></div>';
     }).join("");
     var items = relayItems(r).map(function (it) {
+      var head = '<div class="c-head" style="cursor:default">' +
+        '<span class="c-name">' + esc(it.label) + "</span>" +
+        '<span class="jslot refonly" data-jslot="relay:' + r.id + ":" + it.key + '"></span></div>';
       if (it.type === "select") {
         var cv = pick(r.m || {}, it.key);
-        return '<div class="mline"><div class="t">' + esc(it.label) + "</div>" +
-          '<select data-bind="relay:' + r.id + ":m." + it.key + '">' +
-            it.options.map(function (o) { return '<option' + (cv === o ? " selected" : "") + ">" + esc(o) + "</option>"; }).join("") + "</select>" +
-          '<div class="jslot" data-jslot="relay:' + r.id + ":" + it.key + '"></div></div>';
+        return '<div class="crow rel col">' + head +
+          '<span class="jslot mini" data-jslot="relay:' + r.id + ":" + it.key + '"></span>' +
+          '<div class="c-lines"><div class="c-line"><select data-bind="relay:' + r.id + ":m." + it.key + '" style="flex:1 1 auto">' +
+            it.options.map(function (o) { return '<option' + (cv === o ? " selected" : "") + ">" + esc(o) + "</option>"; }).join("") +
+          "</select></div></div></div>";
       }
       if (it.phases) {
-        return '<div class="mline"><div class="t">' + esc(it.label) + "</div>" +
+        return '<div class="crow rel col">' + head +
+          '<div class="c-lines">' +
           ["R", "T"].map(function (p) {
-            return '<div class="ph"><span class="pl">' + p + "相</span>" +
+            return '<div class="c-line"><span class="lab">' + p + "相</span>" +
               '<input class="in" inputmode="decimal" data-bind="relay:' + r.id + ":m." + it.key + p + '" value="' + esc(pick(r.m || {}, it.key + p)) + '">' +
-              '<span class="jslot" data-jslot="relay:' + r.id + ":" + it.key + p + '" style="flex:0 0 auto;border:0;margin:0;padding:0;background:none;min-height:0"></span></div>';
-          }).join("") +
-          '<div class="jslot" data-jslot="relay:' + r.id + ":" + it.key + '"></div></div>';
+              '<span class="jslot mini" data-jslot="relay:' + r.id + ":" + it.key + p + '" style="flex:1 1 auto;justify-content:flex-start"></span></div>';
+          }).join("") + "</div></div>";
       }
-      return '<div class="mline"><div class="t">' + esc(it.label) + "</div>" +
-        '<input class="in" inputmode="decimal" data-bind="relay:' + r.id + ":m." + it.key + '" value="' + esc(pick(r.m || {}, it.key)) + '">' +
-        '<div class="jslot" data-jslot="relay:' + r.id + ":" + it.key + '"></div></div>';
+      return '<div class="crow rel col">' + head +
+        '<span class="jslot mini" data-jslot="relay:' + r.id + ":" + it.key + '"></span>' +
+        '<div class="c-lines"><div class="c-line">' +
+          '<input class="in" inputmode="decimal" data-bind="relay:' + r.id + ":m." + it.key + '" value="' + esc(pick(r.m || {}, it.key)) + '">' +
+        "</div></div></div>";
     }).join("");
     var refBtn = (r.type === "OCR") ? '<button class="btn sm ghost" data-act="goref" data-ref="ref-ocr">📖 OCR結線</button>'
       : (r.type === "GR" || r.type === "DGR") ? '<button class="btn sm ghost" data-act="goref" data-ref="ref-gr">📖 GR/DGR結線</button>'
@@ -739,16 +840,22 @@ function tabRelay(s) {
     var lgrNote = r.type === "LGR" ?
       '<div class="notice">整定は一般に ' + CRITERIA.relay.LGR.typicalSet + "mA。実測は " + CRITERIA.relay.LGR.actualFrom +
       "mA 程度から動作域に入るのが目安。<br>トランス内部点検との<b>3年周期の交互実施</b>状況は下のメモ欄に記録。</div>" : "";
+    var setEmpty = relaySettingFields(r.type).every(function (f) {
+      var v = pick(r.s || {}, f.k); return v === undefined || v === "" || (f.sel && v === f.sel[0]);
+    });
     return '<div class="card">' +
       '<div class="head" style="display:flex;align-items:center;gap:8px;margin-bottom:10px">' +
         '<h2 style="flex:1;margin:0">' + esc(relayTitle(r.type)) + "</h2>" +
         '<button class="del" data-act="del" data-cat="relays" data-id="' + r.id + '" aria-label="削除">✕</button></div>' +
-      '<div class="row"><div class="field"><label>器具番号・メーカー・形式</label><input class="in" data-bind="relay:' + r.id + ':label" value="' + esc(r.label) + '"></div></div>' +
       lgrNote +
-      "<h3>整定値</h3>" + sf +
-      '<div class="btnrow" style="margin-bottom:10px"><button class="btn sm" data-act="loadpreset" data-id="' + r.id + '">前回の整定値を読込</button>' + refBtn + "</div>" +
-      "<h3>測定値・判定</h3>" + items +
-      '<div class="field"><label>メモ</label><textarea data-bind="relay:' + r.id + ':note" style="min-height:70px">' + esc(r.note) + "</textarea></div>" +
+      '<details class="ref"' + (setEmpty ? " open" : "") + '><summary>整定値' +
+        (setEmpty ? "（未入力）" : "（入力済み／タップで編集）") + '</summary><div class="body">' +
+        '<div class="field"><label>器具番号・メーカー・形式</label><input class="in" data-bind="relay:' + r.id + ':label" value="' + esc(r.label) + '"></div>' +
+        sf +
+        '<div class="btnrow"><button class="btn sm" data-act="loadpreset" data-id="' + r.id + '">前回の整定値を読込</button>' + refBtn + "</div>" +
+      "</div></details>" +
+      '<h3>測定値・判定</h3>' + items +
+      '<div class="field" style="margin-top:10px"><label>メモ</label><textarea data-bind="relay:' + r.id + ':note" style="min-height:70px">' + esc(r.note) + "</textarea></div>" +
       "</div>";
   }).join("");
   return '<div class="card">' +
@@ -766,33 +873,54 @@ function tabRelay(s) {
 function tabLv(s, prev) {
   var CL = Object.keys(CRITERIA.lv.classes);
   var rows = s.lv.map(function (r) {
-    return '<div class="item">' +
-      '<div class="head"><input class="in name" data-bind="lv:' + r.id + ':name" value="' + esc(r.name) + '" placeholder="回路名">' +
-      '<button class="del" data-act="del" data-cat="lv" data-id="' + r.id + '" aria-label="削除">✕</button></div>' +
-      '<div class="field"><label>対地電圧区分</label><select data-bind="lv:' + r.id + ':cls">' +
-        CL.map(function (c) { return '<option' + (r.cls === c ? " selected" : "") + ">" + c + "（" + CRITERIA.lv.classes[c] + "MΩ以上）</option>"; }).join("") + "</select></div>" +
-      '<div class="row">' +
-        '<div class="field"><label>絶縁抵抗 [MΩ]</label><input class="in" inputmode="decimal" data-bind="lv:' + r.id + ':ir" value="' + esc(r.ir) + '"></div>' +
-        '<div class="field"><label>漏えい電流 [mA]</label><input class="in" inputmode="decimal" data-bind="lv:' + r.id + ':leak" value="' + esc(r.leak) + '"></div>' +
-      "</div>" +
-      '<div class="field"><label>備考</label><input class="in" data-bind="lv:' + r.id + ':note" value="' + esc(r.note) + '"></div>' +
-      '<div class="jslot" data-jslot="lv:' + r.id + '"></div>' +
+    var open = !!ui.open[r.id];
+    return '<div class="crow' + (open ? " open" : "") + '">' +
+      '<input class="in" data-bind="lv:' + r.id + ':name" value="' + esc(r.name) + '" placeholder="回路名">' +
+      '<span class="jslot mini" data-jslot="lv:' + r.id + '"></span>' +
+      '<button class="gear" data-act="expand" data-id="' + r.id + '" aria-label="詳細">⚙</button>' +
+      '<div class="c-lines"><div class="c-line">' +
+        '<span class="lab">絶縁</span><input class="in" inputmode="decimal" data-bind="lv:' + r.id + ':ir" value="' + esc(r.ir) + '"><span class="c-u">MΩ</span>' +
+        '<span class="lab">漏洩</span><input class="in" inputmode="decimal" data-bind="lv:' + r.id + ':leak" value="' + esc(r.leak) + '"><span class="c-u">mA</span>' +
+      "</div></div>" +
+      (open ? '<div class="c-det">' +
+        '<div class="field"><label>対地電圧区分</label><select data-bind="lv:' + r.id + ':cls">' +
+          CL.map(function (c) { return '<option' + (r.cls === c ? " selected" : "") + ">" + c + "（" + CRITERIA.lv.classes[c] + "MΩ以上）</option>"; }).join("") + "</select></div>" +
+        '<div class="field"><label>備考</label><input class="in" data-bind="lv:' + r.id + ':note" value="' + esc(r.note) + '"></div>' +
+        '<div class="jslot" data-jslot="lv:' + r.id + ':full"></div>' +
+        '<div class="btnrow" style="margin-top:8px"><button class="btn danger" data-act="del" data-cat="lv" data-id="' + r.id + '">この回路を削除</button></div>' +
+      "</div>" : "") +
       "</div>";
   }).join("");
-  var b = s.bClamp || (s.bClamp = { io: "", igr: "", note: "" });
+  var clamps = (s.bClamp || []).map(function (c) {
+    var open = !!ui.open[c.id];
+    return '<div class="crow' + (open ? " open" : "") + '">' +
+      '<input class="in" data-bind="bclamp:' + c.id + ':name" value="' + esc(c.name) + '" placeholder="測定箇所（例：電灯トランス）">' +
+      '<span class="jslot mini" data-jslot="bclamp:' + c.id + '"></span>' +
+      '<button class="gear" data-act="expand" data-id="' + c.id + '" aria-label="詳細">⚙</button>' +
+      '<div class="c-lines"><div class="c-line">' +
+        '<span class="lab">Igr</span><input class="in" inputmode="decimal" data-bind="bclamp:' + c.id + ':igr" value="' + esc(c.igr) + '"><span class="c-u">mA</span>' +
+      "</div></div>" +
+      (open ? '<div class="c-det">' +
+        '<div class="field"><label>Io（全漏えい電流）[mA]（任意）</label><input class="in" inputmode="decimal" data-bind="bclamp:' + c.id + ':io" value="' + esc(c.io) + '"></div>' +
+        '<div class="field"><label>備考</label><input class="in" data-bind="bclamp:' + c.id + ':note" value="' + esc(c.note) + '"></div>' +
+        '<div class="jslot" data-jslot="bclamp:' + c.id + ':full"></div>' +
+        '<div class="btnrow" style="margin-top:8px"><button class="btn danger" data-act="del" data-cat="bClamp" data-id="' + c.id + '">この行を削除</button></div>' +
+      "</div>" : "") +
+      "</div>";
+  }).join("");
   return '<div class="card">' +
-      "<h2>B種接地線 クランプ測定</h2>" +
-      '<div class="row">' +
-        '<div class="field"><label>Io（全漏えい電流）[mA]</label><input class="in" inputmode="decimal" data-bind="bclamp:io" value="' + esc(b.io) + '"></div>' +
-        '<div class="field"><label>Igr（抵抗分）[mA]</label><input class="in" inputmode="decimal" data-bind="bclamp:igr" value="' + esc(b.igr) + '"></div>' +
-      "</div>" +
-      '<div class="field"><label>備考</label><input class="in" data-bind="bclamp:note" value="' + esc(b.note) + '"></div>' +
-      '<div class="jslot" data-jslot="bclamp:igr"></div>' +
+      "<h2>B種接地線 クランプ測定（Igr）</h2>" +
+      '<div class="notice">抵抗分 Igr で判定（' + CRITERIA.lv.leakMax + "mA以下）。Io と備考は ⚙ から入力</div>" +
+      (clamps || '<div class="muted" style="margin-bottom:10px">行がありません。</div>') +
+      '<div class="btnrow row2" style="margin-top:10px">' +
+        '<button class="btn ghost" data-act="add-clamp" data-name="電灯トランス">＋ 電灯</button>' +
+        '<button class="btn ghost" data-act="add-clamp" data-name="動力トランス">＋ 動力</button>' +
+        '<button class="btn" data-act="add-clamp" data-name="">＋ 行</button></div>' +
     "</div>" +
     '<div class="card"><h2>低圧回路 絶縁抵抗・漏えい電流</h2>' +
-      '<div class="muted small" style="margin-bottom:8px">低圧電路の漏えい電流は ' + CRITERIA.lv.leakMax + "mA以下が基準。</div>" +
+      '<div class="notice">対地電圧区分は ⚙ から変更／漏えい電流は ' + CRITERIA.lv.leakMax + "mA以下が基準</div>" +
       (rows || '<div class="muted" style="margin-bottom:10px">回路がありません。</div>') +
-      '<div class="btnrow"><button class="btn" data-act="add" data-cat="lv">＋ 回路を追加</button></div>' +
+      '<div class="btnrow" style="margin-top:10px"><button class="btn" data-act="add" data-cat="lv">＋ 回路を追加</button></div>' +
     "</div>";
 }
 
@@ -821,15 +949,17 @@ function refreshJudge() {
   var prev = prevSite(s);
   var slots = app.querySelectorAll("[data-jslot]");
   for (var i = 0; i < slots.length; i++) {
-    var key = slots[i].getAttribute("data-jslot").split(":");
-    slots[i].innerHTML = slotHtml(s, prev, key);
+    var el = slots[i];
+    var mode = el.classList.contains("mini") ? "mini" : (el.classList.contains("refonly") ? "ref" : "full");
+    el.innerHTML = slotHtml(s, prev, el.getAttribute("data-jslot").split(":"), mode);
   }
 }
-function slotHtml(s, prev, key) {
+function slotHtml(s, prev, key, mode) {
   var cat = key[0], id = key[1], sub = key[2];
   if (cat === "ground") {
     var r = s.ground.filter(function (x) { return x.id === id; })[0]; if (!r) return "";
     var j = judgeGround(r);
+    if (mode === "mini") return badge(j.s);
     var pv = prev ? (prev.ground.filter(function (x) { return x.name === r.name; })[0] || {}).value : null;
     var gv = num(r.gv), gvw = (!isNaN(gv) && gv > CRITERIA.ground.groundVoltageMax) ?
       '<span class="prev">⚠ 地電圧が' + CRITERIA.ground.groundVoltageMax + "Vを超過</span>" : "";
@@ -839,26 +969,59 @@ function slotHtml(s, prev, key) {
   }
   if (cat === "hv") {
     var h = s.hv.filter(function (x) { return x.id === id; })[0]; if (!h) return "";
-    var jh = judgeHv(s, h);
-    var pvh = null;
-    if (prev) { var mt = prev.hv.filter(function (x) { return hvGroupKey(x) === hvGroupKey(h) && x.phase === h.phase; })[0];
-      if (mt) pvh = mt.value + (mt.unit || ""); }
-    return badge(jh.s) + '<span class="ref">基準：' + esc(jh.ref) + "</span>" +
-      (h.place === "bus" ? '<span class="prev">弱点比：' + (isNaN(jh.wr) ? "—" : fmt(jh.wr, 2)) + (has(h.wrManual) ? "（手入力）" : "（自動）") + "</span>" : "") +
-      (jh.note ? '<span class="prev">' + esc(jh.note) + "</span>" : "") +
-      (pvh ? prevLine(pvh, "") + '<span class="prev">' + trendMark(h.value, num(pvh), true) + "</span>" : "");
+    if (sub === "v5" || sub === "v10") {
+      var jw = judgeHv(s, h, sub);
+      return badge(jw.s) + (mode === "mini" ? "" : '<span class="ref">基準：' + esc(jw.ref) + "</span>");
+    }
+    if (mode === "mini") return badge(hvOverall(s, h));   // 行見出しの総合判定
+    // 展開時のフル表示
+    var out = "", ws = h.method === "E" ? ["v5", "v10"] : ["v5"];
+    ws.forEach(function (w) {
+      var jj = judgeHv(s, h, w);
+      out += "<span>" + (h.method === "E" ? hvKvLabel(w) + " " : "") + badge(jj.s) + "</span>";
+    });
+    if (h.method === "E" && h.place !== "sheath") {
+      var wrr = weakRatio(s, h);
+      out += '<span class="prev">弱点比（5kV÷10kV）' + (isNaN(wrr) ? "—" : fmt(wrr, 2)) +
+        (has(h.wrManual) ? "（手入力）" : "（自動）") + "</span>";
+    }
+    var jr = judgeHv(s, h, "v5");
+    out += '<span class="ref">基準：' + esc(jr.ref) + "</span>";
+    if (prev) {
+      var mt = prev.hv.filter(function (x) { return hvGroupKey(x) === hvGroupKey(h); })[0];
+      if (mt && has(mt.value)) out += prevLine(mt.value + (mt.unit || ""), "") +
+        '<span class="prev">' + trendMark(h.value, mt.value, true) + "</span>";
+    }
+    return out;
   }
   if (cat === "lv") {
     var l = s.lv.filter(function (x) { return x.id === id; })[0]; if (!l) return "";
     var jl = judgeLv(l), jk = judgeLeak(l.leak);
+    if (mode === "mini") return badge(worst(jl.s, jk.s));
     var pl = prev ? (prev.lv.filter(function (x) { return x.name === l.name; })[0] || {}).ir : null;
     return "<span>絶縁 " + badge(jl.s) + "</span><span>漏えい " + badge(jk.s) + "</span>" +
       '<span class="ref">' + esc(jl.ref) + " ／ 漏えい " + esc(jk.ref) + "</span>" +
       (pl ? prevLine(pl, "MΩ") + '<span class="prev">' + trendMark(l.ir, pl, true) + "</span>" : "");
   }
   if (cat === "bclamp") {
-    var b = s.bClamp || {}; var jb = judgeLeak(b.igr);
-    return badge(jb.s) + '<span class="ref">Igr 基準：' + esc(jb.ref) + "（低圧電路の漏えい電流）</span>";
+    var bc = (s.bClamp || []).filter(function (x) { return x.id === id; })[0]; if (!bc) return "";
+    var jb = judgeLeak(bc.igr);
+    if (mode === "mini") return badge(jb.s);
+    var pb = prev ? ((prev.bClamp || []).filter(function (x) { return x.name === bc.name; })[0] || {}).igr : null;
+    return badge(jb.s) + '<span class="ref">Igr 基準：' + esc(jb.ref) + "</span>" +
+      (has(bc.io) ? '<span class="prev">Io ' + esc(bc.io) + "mA</span>" : "") +
+      (pb ? prevLine(pb, "mA") + '<span class="prev">' + trendMark(bc.igr, pb, false) + "</span>" : "");
+  }
+  if (cat === "weak") {
+    var es = s.hv.filter(function (x) { return x.method === "E" && x.place !== "sheath"; });
+    if (!es.length) return '<span class="ref"><b>弱点比</b> E方式の測定がありません</span>';
+    var ws = es.map(function (x) {
+      var wr = weakRatio(s, x);
+      return esc(x.side) + "：" + (isNaN(wr) ? "—" : fmt(wr, 2) +
+        (wr >= CRITERIA.hv.busE.weakRatio ? "（" + CRITERIA.hv.busE.weakRatio + "以上）" : "") +
+        (has(x.wrManual) ? "（手入力）" : ""));
+    });
+    return '<span class="ref"><b>弱点比（5kV÷10kV）</b> ' + ws.join(" ／ ") + "</span>";
   }
   if (cat === "relay") {
     var r2 = s.relays.filter(function (x) { return x.id === id; })[0]; if (!r2) return "";
@@ -875,13 +1038,14 @@ function slotHtml(s, prev, key) {
       var v = num(pick(r2.m || {}, base + phase));
       return badge(it.judge ? it.judge(v) : "na");
     }
+    if (mode === "ref") return "基準：" + it.ref;   // 見出し下の基準テキスト
     if (it.type === "select") {
       var cv = pick(r2.m || {}, it.key);
-      return badge(it.judgeStr ? it.judgeStr(cv) : "na") + '<span class="ref">' + esc(it.ref) + "</span>";
+      return badge(it.judgeStr ? it.judgeStr(cv) : "na") + (mode === "mini" ? "" : '<span class="ref">' + esc(it.ref) + "</span>");
     }
-    if (it.phases) return '<span class="ref">' + it.ref + "</span>";
+    if (it.phases) return mode === "mini" ? "" : '<span class="ref">' + it.ref + "</span>";
     var v2 = num(pick(r2.m || {}, it.key));
-    return badge(it.judge ? it.judge(v2) : "na") + '<span class="ref">' + it.ref + "</span>";
+    return badge(it.judge ? it.judge(v2) : "na") + (mode === "mini" ? "" : '<span class="ref">' + it.ref + "</span>");
   }
   return "";
 }
@@ -983,6 +1147,10 @@ function viewRef() {
       "<tr><td>ケーブル絶縁体</td><td>E</td><td>5GΩ以上</td><td>—</td></tr>" +
       "<tr><td>ケーブルシース</td><td>E</td><td>1MΩ以上</td><td>—</td></tr>" +
       "<tr><td>母線・機器</td><td>E</td><td>5GΩ以上／0.1GΩ以上かつ弱点比3未満</td><td>0.1GΩ以上かつ弱点比3以上</td></tr></table>" +
+      "<p><b>弱点比</b>は、<b>同じ測定点で 5kV と 10kV を印加したときの値の比</b>（大きい方 ÷ 小さい方）。" +
+      "電源側は電源側の5kV/10kVで、負荷側は負荷側の5kV/10kVで取る。" +
+      "印加電圧を上げたときの落ち込みが大きいほど絶縁の弱点が疑われ、<b>3以上で要注意</b>。" +
+      "行を開いて弱点比を手入力すれば、そちらが判定に優先される。</p>" +
       "<p>リーク音・キック現象があれば数値によらず<b>不良</b>。</p>") +
 
     R("ref-earth", "接地抵抗計 / アースチェッカー / クランプ",
@@ -1073,11 +1241,15 @@ function siteToText(s) {
   if (s.hv.length) {
     L.push(""); L.push("【高圧絶縁抵抗】");
     s.hv.forEach(function (r) {
-      var j = judgeHv(s, r);
-      var place = { cable: "ケーブル絶縁体", bus: "母線・機器", sheath: "ケーブルシース" }[r.place] || r.place;
-      L.push("・" + place + " " + r.method + "方式 " + r.side + " " + phaseLabel(r.phase) + " : " +
-        (r.value === "" || r.value === undefined ? "未測定" : r.value + (r.unit || "")) +
-        "  [" + statusLabel(j.s) + "]" + (r.place === "bus" && !isNaN(j.wr) ? " 弱点比 " + fmt(j.wr, 2) : "") +
+      var head = "・" + placeLabel(r.place) + " " + r.method + "方式 " + r.side + " 3線一括 : ";
+      var ws = r.method === "E" ? ["v5", "v10"] : ["v5"];
+      var parts = ws.map(function (w) {
+        var j = judgeHv(s, r, w), v = hvVal(r, w);
+        return (r.method === "E" ? hvKvLabel(w) + " " : "") +
+          (v === "" || v === undefined ? "未測定" : v + (r.unit || "")) + " [" + statusLabel(j.s) + "]";
+      });
+      var wr = (r.method === "E" && r.place !== "sheath") ? weakRatio(s, r) : NaN;
+      L.push(head + parts.join(" / ") + (isNaN(wr) ? "" : " 弱点比" + fmt(wr, 2)) +
         (r.leak ? " ※リーク音・キックあり" : "") + (r.note ? " / " + r.note : ""));
     });
   }
@@ -1109,12 +1281,13 @@ function siteToText(s) {
       if (r.note) L.push("  メモ: " + r.note);
     });
   }
-  var b = s.bClamp || {};
-  if (has(b.io) || has(b.igr) || s.lv.length) {
+  var bs = (s.bClamp || []).filter(function (c) { return has(c.igr) || has(c.io); });
+  if (bs.length || s.lv.length) {
     L.push(""); L.push("【低圧絶縁・漏えい電流】");
-    if (has(b.io) || has(b.igr)) {
-      L.push("・B種接地線クランプ: Io=" + (b.io || "-") + "mA / Igr=" + (b.igr || "-") + "mA  [" + statusLabel(judgeLeak(b.igr).s) + "]" + (b.note ? " / " + b.note : ""));
-    }
+    bs.forEach(function (c) {
+      L.push("・B種クランプ " + (c.name || "-") + " : Igr=" + (c.igr || "-") + "mA  [" + statusLabel(judgeLeak(c.igr).s) + "]" +
+        (has(c.io) ? " / Io=" + c.io + "mA" : "") + (c.note ? " / " + c.note : ""));
+    });
     s.lv.forEach(function (r) {
       var j = judgeLv(r), k = judgeLeak(r.leak);
       L.push("・" + (r.name || "-") + " (" + r.cls + ") : 絶縁 " + (r.ir === "" || r.ir === undefined ? "未測定" : r.ir + "MΩ") +
@@ -1160,7 +1333,7 @@ function openNewSite() {
       var src = db.sites.filter(function (x) { return x.id === cid; })[0];
       if (src) {
         s.ground = src.ground.map(function (r) { var c = JSON.parse(JSON.stringify(r)); c.id = uid(); c.value = ""; c.gv = ""; c.note = ""; return c; });
-        s.hv = src.hv.map(function (r) { var c = JSON.parse(JSON.stringify(r)); c.id = uid(); c.value = ""; c.leak = false; c.wrManual = ""; c.note = ""; return c; });
+        s.hv = src.hv.map(function (r) { var c = JSON.parse(JSON.stringify(r)); c.id = uid(); c.value = ""; c.v10 = ""; c.leak = false; c.wrManual = ""; c.note = ""; return c; });
         s.lv = src.lv.map(function (r) { var c = JSON.parse(JSON.stringify(r)); c.id = uid(); c.ir = ""; c.leak = ""; c.note = ""; return c; });
         s.relays = src.relays.map(function (r) { var c = JSON.parse(JSON.stringify(r)); c.id = uid(); c.m = {}; return c; });
         if (!s.name) s.name = src.name;
@@ -1245,7 +1418,7 @@ function normalizeSite(s) {
   o.type = SITE_TYPES.indexOf(s.type) >= 0 ? s.type : "年次"; o.created = s.created || Date.now();
   o.ground = Array.isArray(s.ground) ? s.ground : []; o.hv = Array.isArray(s.hv) ? s.hv : [];
   o.relays = Array.isArray(s.relays) ? s.relays : []; o.lv = Array.isArray(s.lv) ? s.lv : [];
-  o.bClamp = s.bClamp || { io: "", igr: "", note: "" }; o.memo = s.memo || "";
+  o.bClamp = s.bClamp; o.memo = s.memo || ""; migrateSite(o);
   o.ground.forEach(function (r) { if (!r.id) r.id = uid(); });
   o.hv.forEach(function (r) { if (!r.id) r.id = uid(); });
   o.relays.forEach(function (r) { if (!r.id) r.id = uid(); if (!r.s) r.s = {}; if (!r.m) r.m = {}; });
@@ -1260,7 +1433,11 @@ function setBind(path, value) {
   var s = site();
   var p = path.split(":");
   if (p[0] === "site") { if (!s) return; s[p[1]] = value; }
-  else if (p[0] === "bclamp") { if (!s) return; if (!s.bClamp) s.bClamp = {}; s.bClamp[p[1]] = value; }
+  else if (p[0] === "bclamp") {
+    if (!s) return;
+    var c = (s.bClamp || []).filter(function (x) { return x.id === p[1]; })[0];
+    if (c) c[p[2]] = value;
+  }
   else if (p[0] === "relay") {
     var r = s.relays.filter(function (x) { return x.id === p[1]; })[0]; if (!r) return;
     put(r, p[2], value);
@@ -1286,15 +1463,30 @@ document.addEventListener("change", function (e) {
   setBind(t.dataset.bind, t.type === "checkbox" ? t.checked : t.value);
   // select変更で表示項目自体が変わるものは再描画
   var b = t.dataset.bind;
-  if (/:(kind|place|method|side|phase|cls|type)$/.test(b) || /:s\.link$/.test(b) || b === "site:type") render();
+  if (/:(kind|place|method|side|unit|cls|type)$/.test(b) || /:s\.link$/.test(b) || b === "site:type") render();
   else refreshJudge();
 });
 document.addEventListener("click", function (e) {
   var b = e.target.closest("[data-act]"); if (!b) return;
   var act = b.dataset.act, s = site();
   if (act === "nav") { ui.screen = b.dataset.screen; render(); window.scrollTo(0, 0); return; }
-  if (act === "open") { ui.siteId = b.dataset.id; ui.screen = "site"; ui.tab = "ground"; render(); window.scrollTo(0, 0); return; }
+  if (act === "open") {
+    ui.siteId = b.dataset.id; ui.screen = "site"; ui.tab = "ground"; ui.open = {};
+    var os = site(); ui.openHeader = !(os && os.name);
+    render(); window.scrollTo(0, 0); return;
+  }
   if (act === "newsite") { openNewSite(); return; }
+  if (act === "expand") { var eid = b.dataset.id; ui.open[eid] = !ui.open[eid]; render(); return; }
+  if (act === "expand-header") { ui.openHeader = !ui.openHeader; render(); return; }
+  if (act === "delsite") {
+    var dsid = b.dataset.id, ds = db.sites.filter(function (x) { return x.id === dsid; })[0];
+    if (!ds) return;
+    if (!confirm("「" + (ds.name || "無題の現場") + "（" + (ds.date || "日付なし") + "）」を削除します。取り消せません。よろしいですか？")) return;
+    db.sites = db.sites.filter(function (x) { return x.id !== dsid; });
+    save();
+    if (ui.siteId === dsid) { ui.siteId = null; ui.screen = "home"; }
+    render(); toast("削除しました"); return;
+  }
   if (act === "tab") { ui.tab = b.dataset.tab; render(); return; }
   if (act === "goref") { ui.screen = "ref"; ui.refJump = b.dataset.ref; render(); return; }
   if (act === "export-text") { openExportText(); return; }
@@ -1311,7 +1503,7 @@ document.addEventListener("click", function (e) {
   if (act === "add") {
     var c = b.dataset.cat;
     if (c === "ground") s.ground.push({ id: uid(), name: "", kind: "A", value: "", method: "3極法", gv: "", note: "", fast: false, bCap: "", bBaseLabel: "", bBase: "", bIg: "", bManual: "" });
-    if (c === "hv") s.hv.push({ id: uid(), place: "cable", method: "G", side: "電源側", phase: "3線一括", value: "", unit: "GΩ", leak: false, wrManual: "", note: "" });
+    if (c === "hv") s.hv.push(newHv("cable", "E", "電源側"));
     if (c === "lv") s.lv.push({ id: uid(), name: "", cls: "150V以下", ir: "", leak: "", note: "" });
     save(); render(); return;
   }
@@ -1328,9 +1520,12 @@ document.addEventListener("click", function (e) {
     save(); render(); return;
   }
   if (act === "tmpl-hv") {
-    ["R", "S", "T"].forEach(function (p) {
-      s.hv.push({ id: uid(), place: "cable", method: "G", side: "電源側", phase: p, value: "", unit: "GΩ", leak: false, wrManual: "", note: "" });
-    });
+    defaultHv().forEach(function (h) { s.hv.push(h); });
+    save(); render(); return;
+  }
+  if (act === "add-clamp") {
+    if (!Array.isArray(s.bClamp)) migrateSite(s);
+    s.bClamp.push(newClamp(b.dataset.name || ""));
     save(); render(); return;
   }
   if (act === "addrelay") {
