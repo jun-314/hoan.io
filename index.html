@@ -191,10 +191,59 @@ details.ref .body li{margin:4px 0}
 .c-line .lab{flex:0 0 40px;font-size:12px;color:var(--muted);font-weight:600;text-align:right}
 .c-line .in{flex:0 0 96px;text-align:right;padding:10px 8px}
 .c-line .nm{flex:1 1 auto;min-width:0}
+/* 入力不可（危険ケーブルの10kV欄など） */
+.in:disabled,select:disabled{background:#eef1f6;color:#9aa5b4;-webkit-text-fill-color:#9aa5b4;
+  border-style:dashed;cursor:not-allowed;opacity:1}
+.c-line.off .lab,.c-line.off .c-u{color:#a6b0be}
+.c-off{flex:1 1 auto;font-size:11.5px;color:#8a94a3;line-height:1.25}
+.c-warn{font-size:11.5px;color:#b3261e;font-weight:600;line-height:1.35;margin-top:4px}
+.tag-danger{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:999px;
+  font-size:10.5px;font-weight:700;background:var(--ng-bg);color:var(--ng-fg);border:1px solid var(--ng-line);vertical-align:1px}
+/* 試験種別（年次点検 / 竣工試験）のチップ */
+.kindchip{display:inline-block;margin-left:8px;padding:1px 9px;border-radius:999px;
+  font-size:11px;font-weight:700;background:#eef2f7;color:#5a6779;border:1px solid #dde4ed;white-space:nowrap}
+.kindchip.sk{background:var(--accent-weak);color:#12508f;border-color:#cfe0f8}
+/* ---------- 弱点比カード ---------- */
+.wcard{padding:12px}
+.wtitle{font-size:14px;font-weight:700;margin:0 0 8px}
+.wthr{display:block;font-size:11.5px;font-weight:500;color:var(--muted);margin-top:1px}
+.jslot.wgrid{background:none;border:0;padding:0;margin:0;min-height:0;
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.wcell{border:1px solid var(--line);border-radius:10px;padding:9px 12px;background:#fbfcfe}
+.wside{font-size:11.5px;color:var(--muted);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wplace{font-weight:400}
+.wnum{font-size:30px;font-weight:800;line-height:1.2;letter-spacing:-.5px}
+.wsub{font-size:11.5px;font-weight:700;margin-top:1px}
+.wtag{font-size:10.5px;font-weight:700;margin-left:8px;padding:2px 8px;border-radius:999px;
+  background:#eef2f7;color:#5a6779;border:1px solid #dde4ed;vertical-align:7px}
+.wcell.warn{border-color:var(--warn-line);background:var(--warn-bg)}
+.wcell.warn .wnum,.wcell.warn .wsub{color:var(--warn-fg)}
+.wcell.ng{border-color:var(--ng-line);background:var(--ng-bg)}
+.wcell.ng .wnum,.wcell.ng .wsub{color:var(--ng-fg)}
+.wcell.na .wnum{font-size:19px;color:#8a94a3;line-height:1.5}
+.wnone{font-size:13px;color:var(--muted)}
 .jslot.mini{background:none;border:0;padding:0;margin:0;min-height:0;justify-content:flex-end;gap:5px}
 .jslot.mini .badge{font-size:12.5px;padding:3px 9px}
 .jslot.refonly{background:none;border:0;padding:0;margin:0;min-height:0;display:block;
   font-size:11.5px;color:var(--muted);white-space:normal;line-height:1.35}
+/* 整定値の200%値（試験電流）を入力欄の直下に強調表示 */
+.jslot.x2{background:none;border:0;margin:0;min-height:0;padding:4px 0 0;display:block;
+  color:#b3261e;font-weight:700;font-size:13.5px;line-height:1.2}
+.jslot.x2:empty{padding:0}
+/* 測定項目のラベル（整定値から都度生成） */
+.jslot.labelonly{background:none;border:0;padding:0;margin:0;min-height:0;display:block;
+  font-size:inherit;font-weight:inherit;color:inherit;line-height:inherit}
+.x2i{display:block;color:#b3261e;font-weight:700;font-size:13px;margin-top:2px}
+/* 入力欄の直下に出す弱点比 */
+.jslot.wrinline{background:none;border:0;padding:0;margin:0;min-height:0;gap:6px}
+.wrv{font-size:17px;font-weight:800;line-height:1.1}
+.wrv.ng{color:var(--ng-fg)}
+.wrv.warn{color:var(--warn-fg)}
+.wrv.na{font-size:13.5px;font-weight:700;color:#8a94a3}
+.wrnote{font-size:11px;font-weight:700;color:var(--muted);line-height:1.2}
+.wrnote.ng{color:var(--ng-fg)}
+.wrnote.warn{color:var(--warn-fg)}
+.jslot.wrinline .wtag{vertical-align:1px;margin-left:2px}
 .c-det{grid-column:1/-1;padding:10px;margin:2px 0 8px;background:#fbfcfe;border:1px solid var(--line2);border-radius:8px}
 .c-det .field:last-child{margin-bottom:0}
 .c-det>.jslot{margin-top:0}
@@ -202,6 +251,37 @@ details.ref .body li{margin:4px 0}
   color:#5a6779;font-size:15px;cursor:pointer;font-family:inherit}
 .crow.rel .c-name{white-space:normal;line-height:1.3}
 .crow.rel .c-meta{white-space:normal}
+.crow.rel{padding:3px 0}
+.crow.rel .c-head{min-height:0;padding:1px 0}
+.crow.rel .c-name{font-size:13.5px}
+.crow.rel .jslot.refonly{line-height:1.25}
+/* R相・T相を1行に並べる */
+.phrow{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:1px 0 4px}
+.gcell{display:flex;align-items:center;gap:4px;min-width:0}
+.gcell .in{flex:1 1 0;min-width:0;text-align:right;padding:10px 7px}
+.gl2{flex:0 0 auto;font-size:12px;font-weight:700;color:#42506a}
+/* %別 ×（単体／連動）× R/T の表（雛形の列並びに合わせる） */
+.gtable{grid-column:1/-1;padding:2px 0 6px}
+.grow{display:grid;grid-template-columns:48px repeat(var(--gc,2),1fr);gap:5px;align-items:center;margin-top:5px}
+.grow.gh,.grow.gh2{margin-top:2px}
+.grow.gh>span,.grow.gh2>span{font-size:10.5px;color:var(--muted);font-weight:700;text-align:center;line-height:1.2}
+.grow.gh .gsp{grid-column:span 2;border-bottom:1px solid var(--line2);padding-bottom:1px}
+.gl{font-size:12px;font-weight:700;color:#42506a;line-height:1.15}
+.gl .amp{display:block;font-style:normal;font-size:10px;font-weight:700;color:#b3261e;background:none;
+  border:0;padding:0;margin:0;min-height:0}
+.gna{font-size:12px;color:#c3cbd6;text-align:center}
+.gtable .gcell .in{padding:10px 5px;font-size:15px}
+.gcell.jd{flex-direction:column;align-items:stretch;gap:2px}
+.gcell.jd .jslot.mini{justify-content:center}
+/* ○×のチェック項目を2列に詰める */
+.okhead{font-size:12px;font-weight:700;color:#42506a;margin:12px 0 5px}
+.okgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.okcell{display:flex;align-items:center;gap:5px;border:1px solid var(--line2);border-radius:8px;
+  padding:3px 5px;background:#fbfcfe;min-width:0}
+.okcell .okl{flex:1 1 auto;min-width:0;font-size:11.5px;font-weight:700;color:#42506a;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.okcell select{flex:0 0 60px;min-height:44px;padding:8px 16px 8px 6px;text-align:center;font-size:15px;
+  background-position:calc(100% - 9px) 20px,calc(100% - 5px) 20px}
 .btnrow.row2>.btn{flex:1 1 0}
 .hrow{display:flex;align-items:center;gap:8px;margin:0 0 8px}
 .hrow h2{flex:1;margin:0}
@@ -235,7 +315,9 @@ var CRITERIA = {
   ground: {
     A: 10, C: 10, D: 100,
     fastBreak: 500,           // C種/D種: 0.5秒以内に自動遮断する装置があれば緩和
+    elb: 500,                 // D種(ELB): 漏電遮断器(0.5秒以内)付きの緩和値
     aux: 1000,                // 補助極（判定はしないが目安）
+    refOnlyKinds: ["AUXP", "AUXC", "STEEL"], // 判定対象外＝参考値のみ（進捗の必須からも除外）
     bBases: { "原則（2秒超 / 制限なし）": 150, "1秒超2秒以内で遮断": 300, "1秒以内で遮断": 600 },
     groundVoltageMax: 10,     // 測定前に確認すべき地電圧
     marginRatio: 0.8          // 基準値の80%を超えたら「余裕なし」と注記（判定は変えない）
@@ -246,20 +328,59 @@ var CRITERIA = {
     sheathE_MO: 1,                      // ケーブルシース E方式 [MΩ]
     busE: { ok: 5, ng: 0.1, weakRatio: 3 } // 母線・機器 E方式 [GΩ] と弱点比
   },
+  /* 継電器の判定基準は「種別 × 試験種別」の2階層。
+     年次点検＝従来の社内基準、竣工試験＝試験記録雛形（JIS C 4602／メーカー管理値）。
+     竣工の定義が無い種別は年次の定義にフォールバックする（RC() 参照）。 */
   relay: {
-    OCR:  { limTol: 10, instTol: 15, testPct: 200, timeTolDefault: 10, instTime: { "連動": 0.1, "単体": 0.05 } },
-    GR:   { iTol: 10, vTol: 25, testPct: 130, inertiaPct: 400, inertiaSec: 0.05,
-            opTime: { "単体": [0.10, 0.30], "連動": [0.10, 0.40] }, maxSensAngle: 45 },
-    OVR:  { vTol: 5, resetMinPct: 95,  tTol: 10, stepPct: 120 },
-    UVR:  { vTol: 5, resetMaxPct: 105, tTol: 10, stepPct: 70 },
-    OVGR: { vTol: 5, resetMinPct: 95,  tTol: 5,  stepPct: 150 },
-    LGR:  { typicalSet: 800, actualFrom: 520 }
+    OCR: {
+      /* testMultiplier: 年次の試験電流倍率（200%）。表示・計算はこの1箇所を参照 */
+      "年次点検": { limTol: 10, instTol: 15, testMultiplier: 2.0, testDec: 1,
+                    timeTolDefault: 10, instTime: { "連動": 0.1, "単体": 0.05 } },
+      /* 竣工＝JIS C 4602。限時の動作時間は300%と700%、瞬時は200%で測る。
+         誤差率による自動判定は行わず記録のみ（期待値 (D/10)×T10.3 を計算補助として表示）。*/
+      "竣工試験": { limTol: 10, instTol: 15, testDec: 1,
+                    limSteps: [150, 200, 300, 500, 700],  // 限時 単体動作時間特性の列
+                    cbSteps: [300, 700],                  // 限時 CBとの連動の列
+                    t10Steps: [300, 700],                 // 公称動作時間を入力する%
+                    stepsRef: [150, 200, 300, 500, 700],  // 試験電流を参考表示する%
+                    instStep: 200, instTimeMax: 0.05,     // 瞬時 単体200%で0.05s以下＝良
+                    dialBase: 10 }                        // 公称動作時間の基準ダイヤル
+    },
+    GR:   { "年次点検": { iTol: 10, vTol: 25, testPct: 130, inertiaPct: 400, inertiaSec: 0.05,
+                          opTime: { "単体": [0.10, 0.30], "連動": [0.10, 0.40] }, maxSensAngle: 45 } },
+    OVR:  { "年次点検": { vTol: 5, resetMinPct: 95,  tTol: 10, stepPct: 120 } },
+    UVR:  { "年次点検": { vTol: 5, resetMaxPct: 105, tTol: 10, stepPct: 70 } },
+    OVGR: {
+      "年次点検": { vTol: 5, resetMinPct: 95, tTol: 5, stepPct: 150 },
+      /* 竣工＝メーカー管理値（オムロン）。動作電圧±25%、動作時間は120%/150%で±5%(最小誤差±50ms) */
+      "竣工試験": { vTol: 25, tTol: 5, tMinErrSec: 0.05, timeSteps: [120, 150] }
+    },
+    LGR:  { "年次点検": { typicalSet: 800, actualFrom: 520 } },
+    /* RPR/UPR は竣工試験の雛形しか無いため、年次点検でも同じ定義を使う */
+    RPR:  { "竣工試験": { basePct: 95,  opTol: 5, judgePhase: 180, phaseSteps: [120, 180, -120],
+                          testV: 110, tTol: 10 } },
+    UPR:  { "竣工試験": { basePct: 105, opTol: 5, judgePhase: 0,   phaseSteps: [60, 0, -60],
+                          testV: 110, tTol: 10, tMinErrSec: 0.05 } }
   },
   lv: {
     classes: { "150V以下": 0.1, "150V超300V以下": 0.2, "300V超": 0.4 }, // [MΩ]
     leakMax: 1.0   // 低圧電路の漏えい電流 [mA]
   }
 };
+/* 弱点比カードの強調しきい値。ng は判定基準 busE.weakRatio と同じ値を使う（二重管理を避ける） */
+CRITERIA.hv.weakDisplay = { warn: 2.5, ng: CRITERIA.hv.busE.weakRatio };
+/* 試験種別。既存データ（未設定）は先頭＝年次点検として扱う */
+var TEST_KINDS = ["年次点検", "竣工試験"];
+/* 基準を共用する種別（DGRはGRの基準をそのまま使う） */
+var RELAY_ALIAS = { DGR: "GR" };
+function relayCriteria(type) { return CRITERIA.relay[type] || CRITERIA.relay[RELAY_ALIAS[type]] || {}; }
+/* 種別×試験種別の基準を引く。竣工の定義が無い種別は年次にフォールバック */
+function RC(type, kind) {
+  var t = relayCriteria(type);
+  return t[kind] || t["年次点検"] || t["竣工試験"] || {};
+}
+/* その種別に竣工試験専用の様式があるか（雛形が存在するもの） */
+function hasShunko(type) { return !!relayCriteria(type)["竣工試験"]; }
 
 /* =========================================================================
    2. 保存 / 汎用ユーティリティ
@@ -293,7 +414,7 @@ function esc(s) { return String(s === undefined || s === null ? "" : s)
 function toast(m) { var t = document.getElementById("toast"); t.textContent = m; t.classList.add("on");
   clearTimeout(t._h); t._h = setTimeout(function () { t.classList.remove("on"); }, 1800); }
 function badge(s) {
-  var map = { ok: ["ok", "良"], warn: ["warn", "要注意"], ng: ["ng", "不良"], na: ["na", "—"] };
+  var map = { ok: ["ok", "良"], warn: ["warn", "要注意"], ng: ["ng", "不良"], na: ["na", "—"], ref: ["na", "参考値"] };
   var m = map[s] || map.na; return '<span class="badge ' + m[0] + '">' + m[1] + "</span>";
 }
 function rangeText(a, b, u, d) { return fmt(a, d) + " 〜 " + fmt(b, d) + (u || ""); }
@@ -309,20 +430,30 @@ function put(o, path, val) { var p = path.split("."), c = o;
    ========================================================================= */
 var GROUND_KINDS = [
   { k: "A", label: "A種" }, { k: "B", label: "B種" }, { k: "C", label: "C種" }, { k: "D", label: "D種" },
-  { k: "PAS", label: "PAS（A種扱い）" }, { k: "STEEL", label: "鉄骨（参考）" }, { k: "LA", label: "LA避雷器（A種扱い）" },
-  { k: "AUXP", label: "補助極P（参考）" }, { k: "AUXC", label: "補助極C（参考）" }
+  { k: "DELB", label: "D種(ELB)" }, { k: "PAS", label: "PAS（A種扱い）" },
+  { k: "AUXP", label: "補助極(P)（参考値）" }, { k: "AUXC", label: "補助極(C)（参考値）" },
+  { k: "STEEL", label: "鉄骨（参考値）" }, { k: "LA", label: "LA避雷器（A種扱い）" }
 ];
+/* 新規現場の既定行。この順で並ぶ */
 var GROUND_TEMPLATE = [
-  { name: "A種", kind: "A" }, { name: "B種", kind: "B" },
-  { name: "D種", kind: "D" }, { name: "PAS", kind: "PAS" }
+  { name: "A種", kind: "A" }, { name: "B種", kind: "B" }, { name: "C種", kind: "C" },
+  { name: "D種", kind: "D" }, { name: "D種(ELB)", kind: "DELB" }, { name: "PAS", kind: "PAS" },
+  { name: "補助極(P)", kind: "AUXP" }, { name: "補助極(C)", kind: "AUXC" }, { name: "鉄骨", kind: "STEEL" }
 ];
+function isRefKind(k) { return CRITERIA.ground.refOnlyKinds.indexOf(k) >= 0; }
 var SITE_TYPES = ["月次", "年次", "竣工"];
+var RELAY_TYPES = ["OCR", "GR", "DGR", "OVR", "UVR", "OVGR", "RPR", "UPR", "LGR"];
 var CATS = { ground: "接地抵抗", hv: "高圧絶縁", relay: "継電器", lv: "低圧絶縁・漏洩", memo: "自由メモ" };
 var TEMPLATES = { "月次": ["lv", "memo"], "年次": ["ground", "hv", "relay", "lv"], "竣工": ["ground", "hv", "relay", "lv", "memo"] };
 
+function newGround(name, kind) {
+  return { id: uid(), name: name || "", kind: kind || "A", value: "", method: "3極法", gv: "", note: "",
+           fast: false, bCap: "", bBaseLabel: "", bBase: "", bIg: "", bManual: "" };
+}
+function defaultGround() { return GROUND_TEMPLATE.map(function (t) { return newGround(t.name, t.kind); }); }
 function newHv(place, method, side) {
   return { id: uid(), place: place, method: method, side: side, value: "", v10: "", unit: "GΩ",
-           leak: false, wrManual: "", note: "" };
+           leak: false, danger: false, wrManual: "", note: "" };
 }
 /* 高圧絶縁の標準3測定（負荷側E → 電源側G → 電源側E の順） */
 function defaultHv() {
@@ -333,19 +464,71 @@ function newClamp(name) { return { id: uid(), name: name || "", io: "", igr: "",
 function newSite(name) {
   return {
     id: uid(), name: name || "", voltage: "6600V", date: today(), type: "年次",
-    created: Date.now(),
-    ground: [], hv: defaultHv(), relays: [], lv: [],
+    testKind: TEST_KINDS[0], created: Date.now(),
+    ground: defaultGround(), hv: defaultHv(), relays: [], lv: [],
     bClamp: [newClamp("電灯トランス"), newClamp("動力トランス")], memo: ""
   };
 }
-/* 旧形式（bClampが単一オブジェクト）を配列へ移行 */
+function newRelay(type) { return { id: uid(), type: type, label: "", note: "", byKind: {} }; }
+/* 継電器の整定値・測定値は試験種別ごとに分けて持つ。切り替えても互いを壊さない */
+function relayStore(r, kind) {
+  if (!r.byKind) r.byKind = {};
+  if (!r.byKind[kind]) r.byKind[kind] = { s: {}, m: {} };
+  var st = r.byKind[kind];
+  if (!st.s) st.s = {};
+  if (!st.m) st.m = {};
+  return st;
+}
+function testKind(s) { return (s && TEST_KINDS.indexOf(s.testKind) >= 0) ? s.testKind : TEST_KINDS[0]; }
+/* 旧データの補完。スキーマを増やしたら必ずここで既定値を埋める。
+   既存の測定値は決して書き換えない（不足フィールドを足すだけ）。 */
 function migrateSite(s) {
+  // bClamp: 単一オブジェクト → 配列
   if (s.bClamp && !Array.isArray(s.bClamp)) {
     var b = s.bClamp;
     s.bClamp = [{ id: uid(), name: "B種接地線", io: b.io || "", igr: b.igr || "", note: b.note || "" }];
   }
   if (!Array.isArray(s.bClamp)) s.bClamp = [newClamp("電灯トランス"), newClamp("動力トランス")];
   s.bClamp.forEach(function (c) { if (!c.id) c.id = uid(); });
+
+  // 接地：id・種別の既定値を補完（既存の kind はそのまま活かす）
+  if (!Array.isArray(s.ground)) s.ground = [];
+  s.ground.forEach(function (r) {
+    if (!r.id) r.id = uid();
+    if (!r.kind) r.kind = "A";
+    if (r.fast === undefined) r.fast = false;
+    if (r.method === undefined) r.method = "3極法";
+  });
+
+  // 高圧：10kV欄・危険ケーブルフラグ・単位を補完
+  if (!Array.isArray(s.hv)) s.hv = [];
+  s.hv.forEach(function (r) {
+    if (!r.id) r.id = uid();
+    if (r.v10 === undefined) r.v10 = "";
+    if (r.danger === undefined) r.danger = false;   // 危険ケーブル（5kVまで）
+    if (!r.unit) r.unit = "GΩ";
+    if (r.wrManual === undefined) r.wrManual = "";
+    if (r.leak === undefined) r.leak = false;
+  });
+
+  if (!Array.isArray(s.lv)) s.lv = [];
+  s.lv.forEach(function (r) { if (!r.id) r.id = uid(); });
+  // 試験種別。未設定の既存データは年次点検として扱う
+  if (TEST_KINDS.indexOf(s.testKind) < 0) s.testKind = TEST_KINDS[0];
+
+  // 継電器：旧形式（s/m を直持ち）を byKind["年次点検"] へ退避。値は保持したまま移すだけ
+  if (!Array.isArray(s.relays)) s.relays = [];
+  s.relays.forEach(function (r) {
+    if (!r.id) r.id = uid();
+    if (!r.byKind) r.byKind = {};
+    if (r.s || r.m) {
+      var old = r.byKind[TEST_KINDS[0]] || {};
+      r.byKind[TEST_KINDS[0]] = { s: r.s || old.s || {}, m: r.m || old.m || {} };
+      delete r.s; delete r.m;
+    }
+    TEST_KINDS.forEach(function (k) { relayStore(r, k); });
+    if (r.note === undefined) r.note = "";
+  });
   return s;
 }
 function site() { for (var i = 0; i < db.sites.length; i++) if (db.sites[i].id === ui.siteId) return db.sites[i]; return null; }
@@ -364,7 +547,8 @@ function prevSite(s) {
 
 /* ---- 進捗（チェックリスト） ---- */
 function catFilled(s, c) {
-  if (c === "ground") return s.ground.some(function (r) { return has(r.value); });
+  /* 参考値のみの行（補助極・鉄骨）は必須項目に数えない */
+  if (c === "ground") return s.ground.some(function (r) { return !isRefKind(r.kind) && has(r.value); });
   if (c === "hv") return s.hv.some(function (r) { return has(r.value) || has(r.v10); });
   if (c === "relay") return s.relays.length > 0;
   if (c === "lv") return s.lv.some(function (r) { return has(r.ir) || has(r.leak); }) ||
@@ -390,9 +574,12 @@ function bLimit(r) {
 }
 function judgeGround(r) {
   var v = num(r.value), k = r.kind, limit = NaN, ref = "";
-  if (k === "STEEL") return { s: "na", ref: "判定なし（参考値として記録）" };
-  if (k === "AUXP" || k === "AUXC") return { s: "na", ref: "判定なし（補助極は " + CRITERIA.ground.aux + "Ω以下が望ましい）" };
+  if (isRefKind(k)) {
+    return { s: "ref", ref: k === "STEEL" ? "判定対象外（参考値として記録）"
+      : "判定対象外（参考値。補助極は " + CRITERIA.ground.aux + "Ω以下が望ましい）" };
+  }
   if (k === "A" || k === "PAS" || k === "LA") { limit = CRITERIA.ground.A; ref = CRITERIA.ground.A + "Ω以下"; }
+  else if (k === "DELB") { limit = CRITERIA.ground.elb; ref = CRITERIA.ground.elb + "Ω以下（ELB付き）"; }
   else if (k === "C") { limit = r.fast ? CRITERIA.ground.fastBreak : CRITERIA.ground.C;
     ref = r.fast ? CRITERIA.ground.fastBreak + "Ω以下（0.5秒以内遮断）" : CRITERIA.ground.C + "Ω以下"; }
   else if (k === "D") { limit = r.fast ? CRITERIA.ground.fastBreak : CRITERIA.ground.D;
@@ -417,8 +604,12 @@ function worst(a, b) { var o = { na: 0, ok: 1, warn: 2, ng: 3 }; return (o[a] ||
 /* 弱点比＝同じ測定点における 5kV値 と 10kV値 の比（大きい方 ÷ 小さい方）。
    電源側は電源側の5kV/10kV、負荷側は負荷側の5kV/10kVで取る。
    印加電圧を上げたときの落ち込みが大きいほど絶縁の弱点が疑われる。 */
+/* 危険ケーブル＝5kVを超える電圧を印加してはならない。10kVを測れないので弱点比は算出不可。
+   対象はケーブルのG方式・E方式のみ（測定箇所を変えた場合はフラグを無効扱いにする） */
+function dangerOn(r) { return !!r.danger && r.place === "cable"; }
 function weakRatio(s, r) {
   if (has(r.wrManual)) return num(r.wrManual);
+  if (dangerOn(r)) return NaN;                 // 10kVを印加しないので比が取れない
   var a = toGO(r, "v5"), b = toGO(r, "v10");
   if (isNaN(a) || isNaN(b) || !(a > 0) || !(b > 0)) return NaN;
   return Math.max(a, b) / Math.min(a, b);
@@ -450,70 +641,189 @@ function judgeHv(s, r, w) {
   if (isNaN(wr)) return { s: "warn", ref: refB, wr: wr, note: "弱点比が未算出（5kVと10kVの両方を入力）" };
   return { s: wr < C.busE.weakRatio ? "ok" : "warn", ref: refB, wr: wr };
 }
-/* G方式は5kVの1点、E方式は5kV/10kVの重い方を総合判定とする */
+/* G方式と危険ケーブルは5kVの1点、それ以外のE方式は5kV/10kVの重い方を総合判定とする */
 function hvOverall(s, r) {
-  if (r.method === "G") return judgeHv(s, r, "v5").s;
+  if (r.method === "G" || dangerOn(r)) return judgeHv(s, r, "v5").s;
   return worst(judgeHv(s, r, "v5").s, judgeHv(s, r, "v10").s);
 }
+/* その行で使う印加電圧のリスト */
+function hvSteps(r) { return (r.method === "E" && !dangerOn(r)) ? ["v5", "v10"] : ["v5"]; }
 
 /* ---- 4.3 継電器 ---- */
 function relayTitle(t) {
   return { OCR: "OCR（51）過電流継電器", GR: "GR（51G）地絡継電器", DGR: "DGR（67）地絡方向継電器",
     OVR: "OVR（59）過電圧継電器", UVR: "UVR（27）不足電圧継電器", OVGR: "OVGR（64）地絡過電圧継電器",
+    RPR: "RPR（67P）逆電力継電器", UPR: "UPR（37）不足電力継電器",
     LGR: "LGR / 漏電火災警報器" }[t] || t;
 }
 function tolRange(base, pct) { if (isNaN(base)) return null; return [base * (1 - pct / 100), base * (1 + pct / 100)]; }
+/* ±pct% の許容。ただし最小誤差 minSec[s] を下回らない（雛形の「最小誤差±50ms」） */
+function tolBand(base, pct, minSec) {
+  if (isNaN(base)) return null;
+  var d = base * pct / 100;
+  if (minSec && d < minSec) d = minSec;
+  return [base - d, base + d];
+}
+/* OCRの試験電流。保存はせず整定値から都度算出する */
+function ocrPct() { return CRITERIA.relay.OCR["年次点検"].testMultiplier * 100; }
+function ocrDec() { return CRITERIA.relay.OCR["年次点検"].testDec; }
+function ocrX2(base) {
+  if (isNaN(base)) return "";
+  return Number(base * CRITERIA.relay.OCR["年次点検"].testMultiplier).toFixed(ocrDec());
+}
+/* 任意の%での試験電流（竣工の 150/200/300/500/700% など） */
+function stepAmp(base, pct) {
+  if (isNaN(base)) return "";
+  return Number(base * pct / 100).toFixed(ocrDec());
+}
+/* ○×選択の共通項目（竣工試験の様式に共通して現れるチェック欄） */
+function okItem(key, label) {
+  return { key: key, type: "select", ok: true, options: ["", "○", "×", "—"], label: label,
+    ref: "○＝良 ／ ×＝不良 ／ —＝該当なし",
+    judgeStr: function (v) { return v === "○" ? "ok" : (v === "×" ? "ng" : "na"); } };
+}
+/* 竣工試験の共通チェックブロック（4雛形すべてに存在） */
+function shunkoCommonItems() {
+  return [okItem("tripTest", "トリップテスト"), okItem("dispOp", "動作表示"),
+          okItem("appearance", "外観点検"), okItem("alarmLocal", "警報装置（現場）"),
+          okItem("alarmRemote", "警報装置（遠方）"), okItem("overall", "総合判定")];
+}
+
+/* ---- 竣工試験の測定項目（試験記録雛形に準拠） ---- */
+/* OCR：JIS C 4602。限時は300%/700%、瞬時は200%。動作時間は記録のみ（誤差率判定は行わない） */
+function itemsOcrShunko(r, s, K) {
+  var out = [], tap = num(s.tap), inst = num(s.inst), dial = num(s.dial);
+  var rL = tolRange(tap, K.limTol), rI = tolRange(inst, K.instTol);
+  out.push({ key: "limMin", label: "限時 最小動作電流 [A]", phases: true, dec: 2,
+    ref: rL ? "整定 ±" + K.limTol + "%：" + rangeText(rL[0], rL[1], " A", 2) : "限時電流の整定値を入力",
+    judge: function (v) { return rL ? judgeRange(v, rL[0], rL[1]) : "na"; } });
+  /* 公称動作時間 T10.3 から期待値 (D/10)×T10.3 を計算補助として出す */
+  var exps = K.t10Steps.map(function (p) {
+    var t10 = num(s["t10_" + p]);
+    var e = (!isNaN(t10) && !isNaN(dial)) ? t10 * dial / K.dialBase : NaN;
+    return isNaN(e) ? null : p + "%→" + fmt(e, 3) + "s";
+  }).filter(Boolean);
+  var expNote = exps.length ? "／ 期待値（ダイヤル" + fmt(dial, 1) + "）" + exps.join("・") : "";
+  /* 雛形と同じく「単体｜CBとの連動」を横に並べた1つの表にする（縦スクロールを抑える） */
+  out.push({ key: "lim", type: "grid", label: "限時 動作時間特性 [s]", dec: 3,
+    cols: [{ k: "T", l: "単体" }, { k: "Cb", l: "連動" }],
+    rows: K.limSteps.map(function (p) {
+      return { k: String(p), l: p + "%", ampKey: "tap", ampPct: p,
+               cols: K.cbSteps.indexOf(p) >= 0 ? ["T", "Cb"] : ["T"] };
+    }),
+    ref: "記録のみ（自動判定なし）" + expNote });
+  out.push({ key: "instMin", label: "瞬時 最小動作電流 [A]", phases: true, dec: 2,
+    ref: rI ? "整定 ±" + K.instTol + "%：" + rangeText(rI[0], rI[1], " A", 2) : "瞬時電流の整定値を入力",
+    judge: function (v) { return rI ? judgeRange(v, rI[0], rI[1]) : "na"; } });
+  out.push({ key: "inst", type: "grid", label: "瞬時 動作時間特性 [s]", dec: 3,
+    cols: [{ k: "T", l: "単体", judge: function (v) { return isNaN(v) ? "na" : (v <= K.instTimeMax ? "ok" : "ng"); } },
+           { k: "Cb", l: "連動" }],
+    rows: [{ k: "", l: K.instStep + "%", ampKey: "inst", ampPct: K.instStep, cols: ["T", "Cb"] }],
+    ref: "単体は " + K.instTimeMax + "秒以下で動作＝良 ／ 連動は記録のみ" });
+  return out.concat(shunkoCommonItems());
+}
+/* OVGR：メーカー管理値。動作電圧±25%、動作時間は120%/150%で±5%（最小誤差±50ms） */
+function itemsOvgrShunko(r, s, K) {
+  var out = [], setV = num(s.setV), setT = num(s.setT);
+  var rV = tolRange(setV, K.vTol);
+  out.push({ key: "opV", label: "動作電圧 動作値 [V]", dec: 2,
+    ref: rV ? "整定 ±" + K.vTol + "%：" + rangeText(rV[0], rV[1], " V", 2) : "動作電圧の整定値[V]を入力",
+    judge: function (v) { return rV ? judgeRange(v, rV[0], rV[1]) : "na"; } });
+  out.push({ key: "resetV", label: "動作電圧 復帰値 [V]", dec: 2,
+    ref: "記録のみ（雛形に判定基準の定めなし）", judge: function () { return "na"; } });
+  K.timeSteps.forEach(function (p) {
+    var band = tolBand(setT, K.tTol, K.tMinErrSec);
+    out.push({ key: "opT" + p, label: "動作時間 " + p + "% [s]", dec: 3,
+      ref: band ? "時限整定 ±" + K.tTol + "%（最小誤差±" + K.tMinErrSec + "s）：" + rangeText(band[0], band[1], " s", 3)
+        : "時限整定[s]を入力",
+      judge: function (v) { return band ? judgeRange(v, band[0], band[1]) : "na"; } });
+  });
+  return out.concat(shunkoCommonItems());
+}
+/* RPR/UPR：位相別の動作電流と動作時間。判定は指定位相の1点のみ */
+function itemsPowerRelay(r, s, K, isUpr) {
+  var out = [], base = num(s.baseI), setT = num(s.setT);
+  var lo = base * (K.basePct - K.opTol) / 100, hi = base * (K.basePct + K.opTol) / 100;
+  K.phaseSteps.forEach(function (p) {
+    var judged = (p === K.judgePhase);
+    out.push({ key: "opI" + (p < 0 ? "m" + Math.abs(p) : p), dec: 3,
+      label: "動作電流 位相 " + (p > 0 ? "+" : "") + p + "° [A]",
+      ref: !judged ? "記録のみ（判定は位相" + (K.judgePhase > 0 ? "+" : "") + K.judgePhase + "°で行う）"
+        : (isNaN(base) ? "動作電流の基準値[A]を整定欄に入力"
+          : "基準値の" + K.basePct + "% ±" + K.opTol + "%：" + rangeText(lo, hi, " A", 3)),
+      judge: function (v) { return (judged && !isNaN(base)) ? judgeRange(v, lo, hi) : "na"; } });
+  });
+  ["単体", "連動"].forEach(function (mode) {
+    out.push({ key: "tI" + mode, label: "動作時間試験の電流 " + mode + " [A]", dec: 3,
+      ref: "印加電圧 " + K.testV + "V ／ 位相 " + (K.judgePhase > 0 ? "+" : "") + K.judgePhase + "° ／ 記録のみ",
+      judge: function () { return "na"; } });
+    var band = tolBand(setT, K.tTol, K.tMinErrSec);
+    out.push({ key: "opT" + mode, label: "動作時間 " + mode + " [s]", dec: 3,
+      ref: band ? "時限整定 ±" + K.tTol + "%" + (K.tMinErrSec ? "（最小誤差±" + K.tMinErrSec + "s）" : "") +
+        "：" + rangeText(band[0], band[1], " s", 3) : "時限整定[s]を入力",
+      judge: function (v) { return band ? judgeRange(v, band[0], band[1]) : "na"; } });
+  });
+  return out.concat(shunkoCommonItems());
+}
 
 /* 各継電器の測定項目定義：judge は {s,ref} を返す */
-function relayItems(r) {
-  var s = r.s || {}, m = r.m || {}, C = CRITERIA.relay, out = [];
-  var d;
+function relayItems(r, kind) {
+  kind = (TEST_KINDS.indexOf(kind) >= 0) ? kind : TEST_KINDS[0];
+  var st = relayStore(r, kind), s = st.s, m = st.m, out = [];
+  var K = RC(r.type, kind), d;
+  /* 雛形が竣工しか無い種別は、試験種別によらず竣工様式を使う */
+  if (r.type === "RPR") return itemsPowerRelay(r, s, K, false);
+  if (r.type === "UPR") return itemsPowerRelay(r, s, K, true);
+  if (kind === "竣工試験" && hasShunko(r.type)) {
+    if (r.type === "OCR") return itemsOcrShunko(r, s, K);
+    if (r.type === "OVGR") return itemsOvgrShunko(r, s, K);
+  }
   if (r.type === "OCR") {
     var tap = num(s.tap), inst = num(s.inst), link = s.link || "連動";
-    var rL = tolRange(tap, C.OCR.limTol), rI = tolRange(inst, C.OCR.instTol);
-    var tb = num(s.timeBase), tt = has(s.timeTol) ? num(s.timeTol) : C.OCR.timeTolDefault;
+    var rL = tolRange(tap, K.limTol), rI = tolRange(inst, K.instTol);
+    var tb = num(s.timeBase), tt = has(s.timeTol) ? num(s.timeTol) : K.timeTolDefault;
     var rT = tolRange(tb, tt);
-    var itMax = C.OCR.instTime[link];
+    var itMax = K.instTime[link];
     out.push({ key: "limMin", label: "限時 最小動作電流 [A]", phases: true, dec: 2,
-      ref: rL ? "整定 ±" + C.OCR.limTol + "%：" + rangeText(rL[0], rL[1], " A", 2) : "限時タップを入力",
+      ref: rL ? "整定 ±" + K.limTol + "%：" + rangeText(rL[0], rL[1], " A", 2) : "限時タップを入力",
       judge: function (v) { return rL ? judgeRange(v, rL[0], rL[1]) : "na"; } });
-    out.push({ key: "limTime", label: "限時 動作時間（整定" + C.OCR.testPct + "%＝" + (isNaN(tap) ? "—" : fmt(tap * 2, 2)) + "A）[s]", phases: true, dec: 3,
+    out.push({ key: "limTime", label: "限時 動作時間 [s]", x2key: "tap", phases: true, dec: 3,
       ref: rT ? "基準 " + fmt(tb, 3) + "s ±" + fmt(tt, 1) + "%：" + rangeText(rT[0], rT[1], " s", 3) : "メーカー特性表の基準値[s]を入力",
       judge: function (v) { return rT ? judgeRange(v, rT[0], rT[1]) : "na"; } });
     out.push({ key: "instMin", label: "瞬時 最小動作電流 [A]", phases: true, dec: 2,
-      ref: rI ? "整定 ±" + C.OCR.instTol + "%：" + rangeText(rI[0], rI[1], " A", 2) : "瞬時整定を入力",
+      ref: rI ? "整定 ±" + K.instTol + "%：" + rangeText(rI[0], rI[1], " A", 2) : "瞬時整定を入力",
       judge: function (v) { return rI ? judgeRange(v, rI[0], rI[1]) : "na"; } });
-    out.push({ key: "instTime", label: "瞬時 動作時間（整定" + C.OCR.testPct + "%）[s]", phases: true, dec: 3,
+    out.push({ key: "instTime", label: "瞬時 動作時間 [s]", x2key: "inst", phases: true, dec: 3,
       ref: link + "：" + itMax + "s以内" + (link === "連動" ? "（0.05s＋遮断器3サイクル）" : ""),
       judge: function (v) { return isNaN(v) ? "na" : (v <= itMax ? "ok" : "ng"); } });
     return out;
   }
   if (r.type === "GR" || r.type === "DGR") {
     var i0 = num(s.i0), v0 = num(s.v0), link2 = s.link || "連動";
-    var rI0 = tolRange(i0, C.GR.iTol), rV0 = tolRange(v0, C.GR.vTol);
-    var ot = C.GR.opTime[link2];
+    var rI0 = tolRange(i0, K.iTol), rV0 = tolRange(v0, K.vTol);
+    var ot = K.opTime[link2];
     out.push({ key: "iMin", label: "最小動作電流 [A]", dec: 3,
-      ref: rI0 ? "整定 ±" + C.GR.iTol + "%：" + rangeText(rI0[0], rI0[1], " A", 3) : "零相動作電流 I0 を入力",
+      ref: rI0 ? "整定 ±" + K.iTol + "%：" + rangeText(rI0[0], rI0[1], " A", 3) : "零相動作電流 I0 を入力",
       judge: function (v) { return rI0 ? judgeRange(v, rI0[0], rI0[1]) : "na"; } });
     if (r.type === "DGR") {
       out.push({ key: "vMin", label: "最小動作電圧 [V]", dec: 3,
-        ref: rV0 ? "整定 ±" + C.GR.vTol + "%：" + rangeText(rV0[0], rV0[1], " V", 3) : "零相動作電圧 V0 を入力",
+        ref: rV0 ? "整定 ±" + K.vTol + "%：" + rangeText(rV0[0], rV0[1], " V", 3) : "零相動作電圧 V0 を入力",
         judge: function (v) { return rV0 ? judgeRange(v, rV0[0], rV0[1]) : "na"; } });
       var pl0 = num(s.phLeadMin), pl1 = num(s.phLeadMax);
       out.push({ key: "phLead", label: "位相特性 動作限界角 進み側 [°]", dec: 1,
-        ref: (!isNaN(pl0) && !isNaN(pl1)) ? "メーカー範囲：" + rangeText(pl0, pl1, "°", 1) + "（最大感度角は進み" + C.GR.maxSensAngle + "°）"
-          : "メーカー明示の範囲を整定欄に入力（最大感度角 進み" + C.GR.maxSensAngle + "°）",
+        ref: (!isNaN(pl0) && !isNaN(pl1)) ? "メーカー範囲：" + rangeText(pl0, pl1, "°", 1) + "（最大感度角は進み" + K.maxSensAngle + "°）"
+          : "メーカー明示の範囲を整定欄に入力（最大感度角 進み" + K.maxSensAngle + "°）",
         judge: function (v) { return (!isNaN(pl0) && !isNaN(pl1)) ? judgeRange(v, pl0, pl1) : "na"; } });
       var pg0 = num(s.phLagMin), pg1 = num(s.phLagMax);
       out.push({ key: "phLag", label: "位相特性 動作限界角 遅れ側 [°]", dec: 1,
         ref: (!isNaN(pg0) && !isNaN(pg1)) ? "メーカー範囲：" + rangeText(pg0, pg1, "°", 1) : "メーカー明示の範囲を整定欄に入力",
         judge: function (v) { return (!isNaN(pg0) && !isNaN(pg1)) ? judgeRange(v, pg0, pg1) : "na"; } });
     }
-    out.push({ key: "opTime", label: "動作時間（整定" + C.GR.testPct + "%＝" + (isNaN(i0) ? "—" : fmt(i0 * 1.3, 3)) + "A印加）[s]", dec: 3,
+    out.push({ key: "opTime", label: "動作時間（整定" + K.testPct + "%＝" + (isNaN(i0) ? "—" : fmt(i0 * 1.3, 3)) + "A印加）[s]", dec: 3,
       ref: link2 + "：" + rangeText(ot[0], ot[1], " s", 2),
       judge: function (v) { return judgeRange(v, ot[0], ot[1]); } });
     out.push({ key: "inertia", type: "select", options: ["", "不動作", "動作"],
-      label: "慣性不動作（" + C.GR.inertiaPct + "%＝" + (isNaN(i0) ? "—" : fmt(i0 * 4, 3)) + "A × " + C.GR.inertiaSec + "s）",
+      label: "慣性不動作（" + K.inertiaPct + "%＝" + (isNaN(i0) ? "—" : fmt(i0 * 4, 3)) + "A × " + K.inertiaSec + "s）",
       ref: "「不動作」なら合格",
       judgeStr: function (v) { return v === "不動作" ? "ok" : (v === "動作" ? "ng" : "na"); } });
     out.push({ key: "so", type: "select", options: ["", "動作", "不動作"], label: "SOテストボタン動作",
@@ -521,9 +831,9 @@ function relayItems(r) {
     return out;
   }
   if (r.type === "OVR" || r.type === "UVR" || r.type === "OVGR") {
-    var K = C[r.type], setV = num(s.setV), setT = num(s.setT);
+    var setV = num(s.setV), setT = num(s.setT);
     var rV = tolRange(setV, K.vTol), rTt = tolRange(setT, K.tTol);
-    var opV = num((r.m || {}).opV);
+    var opV = num(m.opV);
     out.push({ key: "opV", label: "動作電圧 [V]", dec: 2,
       ref: rV ? "整定 ±" + K.vTol + "%：" + rangeText(rV[0], rV[1], " V", 2) : "電圧整定値を入力",
       judge: function (v) { return rV ? judgeRange(v, rV[0], rV[1]) : "na"; } });
@@ -546,17 +856,52 @@ function relayItems(r) {
   }
   if (r.type === "LGR") {
     out.push({ key: "opI", label: "動作値 [mA]", dec: 1,
-      ref: "整定" + (has(s.setI) ? " " + fmt(num(s.setI), 1) + "mA" : "（一般に " + C.LGR.typicalSet + "mA）") +
-           "／実測は " + C.LGR.actualFrom + "mA 程度から動作域に入るのが目安（自動判定なし）",
+      ref: "整定" + (has(s.setI) ? " " + fmt(num(s.setI), 1) + "mA" : "（一般に " + K.typicalSet + "mA）") +
+           "／実測は " + K.actualFrom + "mA 程度から動作域に入るのが目安（自動判定なし）",
       judge: function () { return "na"; } });
     out.push({ key: "opTime", label: "動作時間 [s]", dec: 3, ref: "記録のみ（自動判定なし）", judge: function () { return "na"; } });
     return out;
   }
   return out;
 }
-function relaySettingFields(t) {
+/* 竣工試験の様式に共通する銘板・回路名の欄 */
+function nameplateFields() {
+  return [{ k: "circuit", l: "回路名（デバイスNo.）", text: true },
+          { k: "maker", l: "製造者", text: true }, { k: "year", l: "製造年", text: true },
+          { k: "model", l: "型式", text: true }, { k: "serial", l: "製造番号", text: true }];
+}
+function relaySettingFields(t, kind) {
+  kind = (TEST_KINDS.indexOf(kind) >= 0) ? kind : TEST_KINDS[0];
+  var shunko = (kind === "竣工試験") && hasShunko(t);
+  if (t === "RPR" || t === "UPR") {
+    var KP = RC(t, kind);
+    return nameplateFields().concat([
+      { k: "setP", l: "電力 整定 [%]" }, { k: "setT", l: "時限 整定 [s]" },
+      { k: "baseI", l: "動作電流 基準値 [A]（整定値換算・判定用）" },
+      { k: "ct", l: "CT比 / VT比", text: true }
+    ]);
+  }
+  if (t === "OCR" && shunko) {
+    var KO = RC("OCR", kind);
+    return nameplateFields().concat([
+      { k: "tap", l: "限時電流 整定 [A]", steps: true },
+      { k: "dial", l: "動作時間 D（ダイヤル）" },
+      { k: "inst", l: "瞬時電流 整定 [A]" },
+      { k: "ct", l: "CT比", text: true }
+    ]).concat(KO.t10Steps.map(function (p) {
+      return { k: "t10_" + p, l: "公称動作時間 T" + KO.dialBase + "." + (p / 100) + " [s]（ダイヤル" + KO.dialBase + "・" + p + "%）" };
+    })).concat([
+      { k: "tester", l: "試験器 機器名", text: true }, { k: "testerMaker", l: "試験器 製造者", text: true },
+      { k: "testerModel", l: "試験器 型式", text: true }, { k: "testerRange", l: "試験器 定格 [0〜A]", text: true }
+    ]);
+  }
+  if (t === "OVGR" && shunko) return nameplateFields().concat([
+    { k: "tapPct", l: "タップ [%]" }, { k: "setT", l: "ダイヤル(L) 時限 [s]" },
+    { k: "setV", l: "動作電圧 整定 [V]（判定用）" }
+  ]);
   if (t === "OCR") return [
-    { k: "tap", l: "限時タップ [A]" }, { k: "lever", l: "レバー" }, { k: "inst", l: "瞬時整定 [A]" },
+    { k: "tap", l: "限時タップ [A]", x2: true }, { k: "lever", l: "レバー" },
+    { k: "inst", l: "瞬時整定 [A]", x2: true },
     { k: "time", l: "時限 [s]" }, { k: "ct", l: "CT比", text: true },
     { k: "link", l: "連動 / 単体", sel: ["連動", "単体"] },
     { k: "timeBase", l: "限時動作時間 基準値 [s]（特性表）" }, { k: "timeTol", l: "同 許容 [±%]" }
@@ -577,6 +922,7 @@ function relaySettingFields(t) {
   if (t === "LGR") return [{ k: "setI", l: "整定 [mA]（一般に800）" }];
   return [];
 }
+function relayTitleShort(t) { return (relayTitle(t).split(/[（/]/)[0] || t).trim(); }
 
 /* ---- 4.4 低圧 ---- */
 function judgeLv(r) {
@@ -627,7 +973,8 @@ function viewHome() {
     return '<div class="site">' +
       '<button class="site-open" data-act="open" data-id="' + s.id + '">' +
         '<div class="t">' + esc(s.name || "（無題の現場）") + "</div>" +
-        '<div class="m">' + esc(s.date || "日付未設定") + "　/　" + esc(s.type) + "　/　" + esc(s.voltage || "-") + "</div>" +
+        '<div class="m">' + esc(s.date || "日付未設定") + "　/　" + esc(s.type) + "　/　" + esc(s.voltage || "-") +
+          '<span class="kindchip ' + (testKind(s) === "竣工試験" ? "sk" : "") + '">' + esc(testKind(s)) + "</span></div>" +
         '<div class="pbar"><i style="width:' + p.pct + '%"></i></div>' +
         '<div class="chips"><span class="chip">進捗 ' + p.done.length + "/" + p.req.length + "</span>" + chips + "</div>" +
       "</button>" +
@@ -662,7 +1009,8 @@ function viewSite() {
     '<div class="card tight">' +
       '<div class="crow col" style="border:0;padding:0">' +
       '<button class="c-head" data-act="expand-header">' +
-        '<span class="c-name">' + esc(s.date || "日付未設定") + "　" + esc(s.type) + "　" + esc(s.voltage || "-") + "</span>" +
+        '<span class="c-name">' + esc(s.date || "日付未設定") + "　" + esc(s.type) + "　" + esc(s.voltage || "-") +
+          '<span class="kindchip ' + (testKind(s) === "竣工試験" ? "sk" : "") + '">' + esc(testKind(s)) + "</span></span>" +
         '<span class="c-meta">' + p.req.map(function (c) { return CATS[c] + (catFilled(s, c) ? "✓" : "未"); }).join(" / ") + "</span>" +
       "</button>" +
       '<span class="badge ' + (p.done.length === p.req.length ? "ok" : "na") + '">' + p.done.length + "/" + p.req.length + "</span>" +
@@ -680,6 +1028,9 @@ function viewSite() {
           "</div>" +
           '<div class="field"><label>種別</label><select data-bind="site:type">' +
             SITE_TYPES.map(function (t) { return '<option' + (s.type === t ? " selected" : "") + ">" + t + "</option>"; }).join("") + "</select></div>" +
+          '<div class="field"><label>試験種別</label><select data-bind="site:testKind">' +
+            TEST_KINDS.map(function (t) { return '<option' + (testKind(s) === t ? " selected" : "") + ">" + t + "</option>"; }).join("") + "</select>" +
+            '<div class="muted small" style="margin-top:4px">継電器タブの様式が切り替わります。入力済みの値は種別ごとに保持され、消えません。</div></div>' +
           '<button class="btn danger wide" data-act="delsite" data-id="' + s.id + '">この現場を削除</button>' +
         "</div>" : "") +
       "</div>" +
@@ -724,7 +1075,8 @@ function tabGround(s, prev) {
     return '<div class="crow' + (open ? " open" : "") + '">' +
       '<button class="c-head" data-act="expand" data-id="' + r.id + '">' +
         '<span class="c-name">' + esc(r.name || "（名称未設定）") + "</span>" +
-        '<span class="c-meta">' + esc(kl) + (r.method ? " / " + esc(r.method) : "") + (has(r.gv) ? " / 地電圧" + esc(r.gv) + "V" : "") + "</span>" +
+        '<span class="c-meta">' + esc(kl) + (isRefKind(r.kind) ? "" : (r.method ? " / " + esc(r.method) : "")) +
+          (has(r.gv) ? " / 地電圧" + esc(r.gv) + "V" : "") + "</span>" +
       "</button>" +
       '<div class="c-in"><input class="in" inputmode="decimal" data-bind="ground:' + r.id + ':value" value="' + esc(r.value) + '"><span class="c-u">Ω</span></div>' +
       '<span class="jslot mini" data-jslot="ground:' + r.id + '"></span>' +
@@ -738,17 +1090,21 @@ function tabGround(s, prev) {
       CRITERIA.ground.groundVoltageMax + "V以下</b>を確認／3極法は補助極を約10m間隔／行をタップで詳細</div>" +
     (rows || '<div class="muted" style="margin-bottom:10px">項目がありません。</div>') +
     '<div class="btnrow row2" style="margin-top:10px"><button class="btn" data-act="add" data-cat="ground">＋ 行を追加</button>' +
-    '<button class="btn ghost" data-act="tmpl-ground">標準4項目</button></div>' +
+    '<button class="btn ghost" data-act="tmpl-ground">標準' + GROUND_TEMPLATE.length + "項目</button></div>" +
     "</div>";
 }
 
 /* ---- 高圧絶縁タブ（3線一括のみ／E方式は5kV・10kVの2点） ---- */
 function hvLine(r, w) {
   var field = (w === "v10") ? "v10" : "value";
-  return '<div class="c-line"><span class="lab">' + hvKvLabel(w) + "</span>" +
-    '<input class="in" inputmode="decimal" data-bind="hv:' + r.id + ":" + field + '" value="' + esc(hvVal(r, w)) + '">' +
+  var off = (w === "v10") && dangerOn(r);   // 危険ケーブルは10kVを印加しない
+  return '<div class="c-line' + (off ? " off" : "") + '"><span class="lab">' + hvKvLabel(w) + "</span>" +
+    '<input class="in" inputmode="decimal"' + (off ? " disabled" : "") +
+      ' data-bind="hv:' + r.id + ":" + field + '" value="' + esc(hvVal(r, w)) + '">' +
     '<span class="c-u">' + esc(r.unit) + "</span>" +
-    '<span class="jslot mini" data-jslot="hv:' + r.id + ":" + w + '" style="flex:1 1 auto"></span></div>';
+    (off ? '<span class="c-off">危険ケーブルのため5kVまで</span>'
+         : '<span class="jslot mini" data-jslot="hv:' + r.id + ":" + w + '" style="flex:1 1 auto"></span>') +
+    "</div>";
 }
 function hvDetail(s, r) {
   var sideHint = r.side === "電源側" ? "電源側：G方式・E方式の<b>両方</b>を測定する"
@@ -762,6 +1118,10 @@ function hvDetail(s, r) {
     '<div class="field"><label>単位</label><select data-bind="hv:' + r.id + ':unit">' +
       ["GΩ", "MΩ"].map(function (m) { return '<option' + (r.unit === m ? " selected" : "") + ">" + m + "</option>"; }).join("") + "</select></div>" +
     '<div class="muted small" style="margin-bottom:6px">' + sideHint + "（測定は3線一括）</div>" +
+    (r.place === "cable" ?
+      '<label class="check"><input type="checkbox" data-bind="hv:' + r.id + ':danger"' + (r.danger ? " checked" : "") +
+      ">危険ケーブル（5kVを超える電圧を印加しない）</label>" +
+      '<div class="muted small" style="margin:-4px 0 8px 32px">チェックすると10kV欄を入力不可にし、判定は5kV値のみで行います</div>' : "") +
     '<label class="check"><input type="checkbox" data-bind="hv:' + r.id + ':leak"' + (r.leak ? " checked" : "") + ">リーク音・キック現象あり（→ 不良）</label>" +
     (r.place === "bus" ? '<div class="field"><label>弱点比 手入力（自動算出を上書き）</label><input class="in" inputmode="decimal" data-bind="hv:' + r.id + ':wrManual" value="' + esc(r.wrManual) + '"></div>' : "") +
     '<div class="field"><label>備考</label><input class="in" data-bind="hv:' + r.id + ':note" value="' + esc(r.note) + '"></div>' +
@@ -776,9 +1136,20 @@ function tabHv(s, prev) {
          '<input class="in" inputmode="decimal" data-bind="hv:' + r.id + ':value" value="' + esc(r.value) + '">' +
          '<span class="c-u">' + esc(r.unit) + "</span>" +
          '<span class="jslot mini" data-jslot="hv:' + r.id + ':v5" style="flex:1 1 auto"></span></div>');
+    // 弱点比は入力欄のすぐ下でも確認できるようにする（上部カードと同じ値）
+    if (r.method === "E" && r.place !== "sheath") {
+      lines += '<div class="c-line"><span class="lab">弱点比</span>' +
+        '<span class="jslot wrinline" data-jslot="hv:' + r.id + ':wr" style="flex:1 1 auto"></span></div>';
+    }
+    // 危険ケーブル指定後も既存の10kV値は破棄しない。判定から外していることを明示する
+    if (dangerOn(r) && has(r.v10)) {
+      lines += '<div class="c-warn">⚠ 10kV値 ' + esc(r.v10) + esc(r.unit) +
+        " は保持していますが、判定・弱点比からは除外しています</div>";
+    }
     return '<div class="crow col' + (open ? " open" : "") + '">' +
       '<button class="c-head" data-act="expand" data-id="' + r.id + '">' +
-        '<span class="c-name">' + esc(r.side) + " " + esc(r.method) + "方式</span>" +
+        '<span class="c-name">' + esc(r.side) + " " + esc(r.method) + "方式" +
+          (dangerOn(r) ? '<span class="tag-danger">危険ケーブル</span>' : "") + "</span>" +
         '<span class="c-meta">' + esc(placeLabel(r.place)) + " / 3線一括" + (r.leak ? " / リーク音あり" : "") + "</span>" +
       "</button>" +
       '<span class="jslot mini" data-jslot="hv:' + r.id + '"></span>' +
@@ -786,11 +1157,15 @@ function tabHv(s, prev) {
       (open ? '<div class="c-det">' + hvDetail(s, r) + "</div>" : "") +
       "</div>";
   }).join("");
-  return '<div class="card">' +
+  return '<div class="card wcard">' +
+      '<div class="wtitle">弱点比（5kV ÷ 10kV）<span class="wthr">' +
+        CRITERIA.hv.weakDisplay.warn + "以上=要観察／" + CRITERIA.hv.weakDisplay.ng + "以上=弱点あり</span></div>" +
+      '<div class="jslot wgrid" data-jslot="weak"></div>' +
+    "</div>" +
+    '<div class="card">' +
     '<div class="hrow"><h2>高圧絶縁抵抗</h2>' +
       '<button class="btn sm ghost" data-act="goref" data-ref="ref-megger">📖 使い方</button></div>' +
-    '<div class="notice"><b>1分値</b>で読む／放電棒は使用前に1MΩ以上を確認／測定は<b>3線一括</b>／E方式は<b>5kVと10kV</b>の2点／行をタップで詳細' +
-      '<div class="jslot" data-jslot="weak" style="margin-top:8px"></div></div>' +
+    '<div class="notice"><b>1分値</b>で読む／放電棒は使用前に1MΩ以上を確認／測定は<b>3線一括</b>／E方式は<b>5kVと10kV</b>の2点／行をタップで詳細</div>' +
     (rows || '<div class="muted" style="margin-bottom:10px">測定がありません。</div>') +
     '<div class="btnrow row2" style="margin-top:10px"><button class="btn" data-act="add" data-cat="hv">＋ 測定を追加</button>' +
     '<button class="btn ghost" data-act="tmpl-hv">標準3測定</button></div>' +
@@ -799,49 +1174,101 @@ function tabHv(s, prev) {
 
 /* ---- 継電器タブ ---- */
 function tabRelay(s) {
+  var kind = testKind(s);
   var cards = s.relays.map(function (r) {
-    var sf = relaySettingFields(r.type).map(function (f) {
-      var v = pick(r.s || {}, f.k);
+    var sf = relaySettingFields(r.type, kind).map(function (f) {
+      var v = pick(relayStore(r, kind).s, f.k);
       if (f.sel) return '<div class="field"><label>' + esc(f.l) + "</label><select data-bind=\"relay:" + r.id + ":s." + f.k + '">' +
         f.sel.map(function (o) { return '<option' + (v === o ? " selected" : "") + ">" + o + "</option>"; }).join("") + "</select></div>";
       return '<div class="field"><label>' + esc(f.l) + "</label><input class=\"in\"" + (f.text ? "" : ' inputmode="decimal"') +
-        ' data-bind="relay:' + r.id + ":s." + f.k + '" value="' + esc(v) + '"></div>';
+        ' data-bind="relay:' + r.id + ":s." + f.k + '" value="' + esc(v) + '">' +
+        (f.x2 ? '<div class="jslot x2" data-jslot="relay:' + r.id + ":x2." + f.k + '"></div>' : "") +
+        (f.steps ? '<div class="jslot x2" data-jslot="relay:' + r.id + ":steps." + f.k + '"></div>' : "") +
+        "</div>";
     }).join("");
-    var items = relayItems(r).map(function (it) {
-      var head = '<div class="c-head" style="cursor:default">' +
-        '<span class="c-name">' + esc(it.label) + "</span>" +
+    var M = relayStore(r, kind).m;
+    var head = function (it) {   // ラベル・基準とも整定値から都度算出する
+      return '<div class="c-head" style="cursor:default">' +
+        '<span class="c-name"><span class="jslot labelonly" data-jslot="relay:' + r.id + ":lb." + it.key + '"></span></span>' +
         '<span class="jslot refonly" data-jslot="relay:' + r.id + ":" + it.key + '"></span></div>';
-      if (it.type === "select") {
-        var cv = pick(r.m || {}, it.key);
-        return '<div class="crow rel col">' + head +
-          '<span class="jslot mini" data-jslot="relay:' + r.id + ":" + it.key + '"></span>' +
-          '<div class="c-lines"><div class="c-line"><select data-bind="relay:' + r.id + ":m." + it.key + '" style="flex:1 1 auto">' +
-            it.options.map(function (o) { return '<option' + (cv === o ? " selected" : "") + ">" + esc(o) + "</option>"; }).join("") +
-          "</select></div></div></div>";
+    };
+    var cell = function (key, ph) {   // 入力＋判定バッジの1セル
+      return '<div class="gcell"><span class="gl2">' + ph + "</span>" +
+        '<input class="in" inputmode="decimal" data-bind="relay:' + r.id + ":m." + key + '" value="' + esc(pick(M, key)) + '">' +
+        '<span class="jslot mini" data-jslot="relay:' + r.id + ":" + key + '"></span></div>';
+    };
+    var items = "", okBuf = [];
+    var flushOk = function () {
+      if (!okBuf.length) return;
+      items += '<div class="okhead">確認項目（○＝良／×＝不良／—＝該当なし）</div><div class="okgrid">' + okBuf.join("") + "</div>";
+      okBuf = [];
+    };
+    relayItems(r, kind).forEach(function (it) {
+      // ○×のチェック項目は2列に詰めて表示する
+      if (it.ok) {
+        var ov = pick(M, it.key);
+        okBuf.push('<div class="okcell"><span class="okl">' + esc(it.label) + "</span>" +
+          '<select data-bind="relay:' + r.id + ":m." + it.key + '">' +
+          it.options.map(function (o) { return '<option' + (ov === o ? " selected" : "") + ">" + esc(o) + "</option>"; }).join("") +
+          "</select></div>");
+        return;
       }
-      if (it.phases) {
-        return '<div class="crow rel col">' + head +
-          '<div class="c-lines">' +
-          ["R", "T"].map(function (p) {
-            return '<div class="c-line"><span class="lab">' + p + "相</span>" +
-              '<input class="in" inputmode="decimal" data-bind="relay:' + r.id + ":m." + it.key + p + '" value="' + esc(pick(r.m || {}, it.key + p)) + '">' +
-              '<span class="jslot mini" data-jslot="relay:' + r.id + ":" + it.key + p + '" style="flex:1 1 auto;justify-content:flex-start"></span></div>';
+      flushOk();
+      if (it.type === "grid") {   // %別 ×（単体／連動）×（R相／T相）の表
+        var cols = it.cols, ncol = cols.length * 2;
+        items += '<div class="crow rel col">' + head(it) +
+          '<div class="gtable" style="--gc:' + ncol + '">' +
+          '<div class="grow gh"><span></span>' +
+            cols.map(function (c) { return '<span class="gsp">' + esc(c.l) + "</span>"; }).join("") + "</div>" +
+          '<div class="grow gh2"><span></span>' +
+            cols.map(function () { return "<span>R</span><span>T</span>"; }).join("") + "</div>" +
+          it.rows.map(function (row) {
+            return '<div class="grow"><span class="gl">' + esc(row.l) +
+              (row.ampKey ? '<i class="jslot amp" data-jslot="relay:' + r.id + ":amp." + row.ampKey + "." + row.ampPct + '"></i>' : "") +
+              "</span>" +
+              cols.map(function (c) {
+                if ((row.cols || []).indexOf(c.k) < 0) return '<span class="gna">—</span><span class="gna">—</span>';
+                return ["R", "T"].map(function (p) {
+                  var ck = it.key + c.k + row.k + p;
+                  /* 判定のある列はバッジを入力欄の下に置く（入力欄の幅を潰さない） */
+                  return '<div class="gcell' + (c.judge ? " jd" : "") + '">' +
+                    '<input class="in" inputmode="decimal" data-bind="relay:' + r.id +
+                    ":m." + ck + '" value="' + esc(pick(M, ck)) + '">' +
+                    (c.judge ? '<span class="jslot mini" data-jslot="relay:' + r.id + ":" + ck + '"></span>' : "") +
+                    "</div>";
+                }).join("");
+              }).join("") + "</div>";
           }).join("") + "</div></div>";
+        return;
       }
-      return '<div class="crow rel col">' + head +
-        '<span class="jslot mini" data-jslot="relay:' + r.id + ":" + it.key + '"></span>' +
-        '<div class="c-lines"><div class="c-line">' +
-          '<input class="in" inputmode="decimal" data-bind="relay:' + r.id + ":m." + it.key + '" value="' + esc(pick(r.m || {}, it.key)) + '">' +
-        "</div></div></div>";
-    }).join("");
+      if (it.phases) {   // R相・T相を1行に並べる
+        items += '<div class="crow rel col">' + head(it) +
+          '<div class="phrow">' + cell(it.key + "R", "R") + cell(it.key + "T", "T") + "</div></div>";
+        return;
+      }
+      if (it.type === "select") {
+        var cv = pick(M, it.key);
+        items += '<div class="crow rel">' + head(it) +
+          '<div class="c-in"><select data-bind="relay:' + r.id + ":m." + it.key + '">' +
+            it.options.map(function (o) { return '<option' + (cv === o ? " selected" : "") + ">" + esc(o) + "</option>"; }).join("") +
+          "</select></div>" +
+          '<span class="jslot mini" data-jslot="relay:' + r.id + ":" + it.key + '"></span></div>';
+        return;
+      }
+      items += '<div class="crow rel">' + head(it) +
+        '<div class="c-in"><input class="in" inputmode="decimal" data-bind="relay:' + r.id + ":m." + it.key +
+          '" value="' + esc(pick(M, it.key)) + '"></div>' +
+        '<span class="jslot mini" data-jslot="relay:' + r.id + ":" + it.key + '"></span></div>';
+    });
+    flushOk();
     var refBtn = (r.type === "OCR") ? '<button class="btn sm ghost" data-act="goref" data-ref="ref-ocr">📖 OCR結線</button>'
       : (r.type === "GR" || r.type === "DGR") ? '<button class="btn sm ghost" data-act="goref" data-ref="ref-gr">📖 GR/DGR結線</button>'
       : (r.type === "OVR" || r.type === "UVR" || r.type === "OVGR") ? '<button class="btn sm ghost" data-act="goref" data-ref="ref-ovr">📖 OVR/UVR/OVGR結線</button>' : "";
     var lgrNote = r.type === "LGR" ?
-      '<div class="notice">整定は一般に ' + CRITERIA.relay.LGR.typicalSet + "mA。実測は " + CRITERIA.relay.LGR.actualFrom +
+      '<div class="notice">整定は一般に ' + CRITERIA.relay.LGR["年次点検"].typicalSet + "mA。実測は " + CRITERIA.relay.LGR["年次点検"].actualFrom +
       "mA 程度から動作域に入るのが目安。<br>トランス内部点検との<b>3年周期の交互実施</b>状況は下のメモ欄に記録。</div>" : "";
-    var setEmpty = relaySettingFields(r.type).every(function (f) {
-      var v = pick(r.s || {}, f.k); return v === undefined || v === "" || (f.sel && v === f.sel[0]);
+    var setEmpty = relaySettingFields(r.type, kind).every(function (f) {
+      var v = pick(relayStore(r, kind).s, f.k); return v === undefined || v === "" || (f.sel && v === f.sel[0]);
     });
     return '<div class="card">' +
       '<div class="head" style="display:flex;align-items:center;gap:8px;margin-bottom:10px">' +
@@ -854,19 +1281,30 @@ function tabRelay(s) {
         sf +
         '<div class="btnrow"><button class="btn sm" data-act="loadpreset" data-id="' + r.id + '">前回の整定値を読込</button>' + refBtn + "</div>" +
       "</div></details>" +
-      '<h3>測定値・判定</h3>' + items +
-      '<div class="field" style="margin-top:10px"><label>メモ</label><textarea data-bind="relay:' + r.id + ':note" style="min-height:70px">' + esc(r.note) + "</textarea></div>" +
+      items +
+      '<details class="ref" style="margin-top:10px"><summary>メモ' + (r.note ? "（記入あり）" : "") +
+        '</summary><div class="body"><textarea data-bind="relay:' + r.id + ':note" style="min-height:70px">' + esc(r.note) + "</textarea></div></details>" +
       "</div>";
   }).join("");
-  return '<div class="card">' +
-    "<h2>継電器試験</h2>" +
-    '<div class="muted small" style="margin-bottom:8px">整定値を入れると判定範囲が自動表示されます。判定基準は 限時=±' +
-      CRITERIA.relay.OCR.limTol + "%、瞬時=±" + CRITERIA.relay.OCR.instTol + "%。</div>" +
-    '<div class="row"><div class="field"><label>継電器を追加</label><select id="relayAdd">' +
-      ["OCR", "GR", "DGR", "OVR", "UVR", "OVGR", "LGR"].map(function (t) { return '<option value="' + t + '">' + esc(relayTitle(t)) + "</option>"; }).join("") +
-      "</select></div></div>" +
-    '<button class="btn primary wide" data-act="addrelay">＋ 追加</button>' +
-    "</div>" + cards;
+  var noTemplate = s.relays.filter(function (r) { return kind === "竣工試験" && !hasShunko(r.type); })
+    .map(function (r) { return relayTitleShort(r.type); });
+  /* 測定欄を先に出したいので、見出し・追加UI・注記はタブの最後に置く
+     （試験種別は現場情報カードのチップで常時見えている） */
+  return cards +
+    '<div class="card">' +
+      '<div class="hrow"><h2>継電器試験</h2>' +
+        '<span class="kindchip ' + (kind === "竣工試験" ? "sk" : "") + '">' + esc(kind) + "</span></div>" +
+      '<div class="muted small" style="margin-bottom:8px">' +
+        (kind === "竣工試験" ? "竣工試験の様式（JIS C 4602／メーカー管理値）で表示中。" :
+          "判定基準は 限時=±" + CRITERIA.relay.OCR["年次点検"].limTol + "%、瞬時=±" + CRITERIA.relay.OCR["年次点検"].instTol + "%。") +
+        "</div>" +
+      (noTemplate.length ? '<div class="notice">' + esc(noTemplate.join("・")) +
+        " は竣工試験の記録雛形が無いため、年次点検と同じ項目で表示しています。</div>" : "") +
+      '<div class="row"><div class="field"><label>継電器を追加</label><select id="relayAdd">' +
+        RELAY_TYPES.map(function (t) { return '<option value="' + t + '">' + esc(relayTitle(t)) + "</option>"; }).join("") +
+        "</select></div></div>" +
+      '<button class="btn primary wide" data-act="addrelay">＋ 追加</button>' +
+    "</div>";
 }
 
 /* ---- 低圧タブ ---- */
@@ -973,17 +1411,29 @@ function slotHtml(s, prev, key, mode) {
       var jw = judgeHv(s, h, sub);
       return badge(jw.s) + (mode === "mini" ? "" : '<span class="ref">基準：' + esc(jw.ref) + "</span>");
     }
+    if (sub === "wr") {   // 入力欄の直下に出す弱点比
+      var D0 = CRITERIA.hv.weakDisplay, wv = weakRatio(s, h);
+      if (dangerOn(h) && !has(h.wrManual))
+        return '<span class="wrv na">算出不可</span><span class="wrnote">危険ケーブル（5kVのみ）</span>';
+      if (isNaN(wv))
+        return '<span class="wrv na">—</span><span class="wrnote">5kVと10kVの両方を入力</span>';
+      var wc = wv >= D0.ng ? "ng" : (wv >= D0.warn ? "warn" : "");
+      return '<span class="wrv ' + wc + '">' + fmt(wv, 2) + "</span>" +
+        (wc ? '<span class="wrnote ' + wc + '">' + (wc === "ng" ? D0.ng + "以上：弱点あり" : D0.warn + "以上：要観察") + "</span>" : "") +
+        (has(h.wrManual) ? '<span class="wtag">手入力</span>' : "");
+    }
     if (mode === "mini") return badge(hvOverall(s, h));   // 行見出しの総合判定
     // 展開時のフル表示
-    var out = "", ws = h.method === "E" ? ["v5", "v10"] : ["v5"];
+    var out = "", ws = hvSteps(h);
     ws.forEach(function (w) {
       var jj = judgeHv(s, h, w);
       out += "<span>" + (h.method === "E" ? hvKvLabel(w) + " " : "") + badge(jj.s) + "</span>";
     });
     if (h.method === "E" && h.place !== "sheath") {
       var wrr = weakRatio(s, h);
-      out += '<span class="prev">弱点比（5kV÷10kV）' + (isNaN(wrr) ? "—" : fmt(wrr, 2)) +
-        (has(h.wrManual) ? "（手入力）" : "（自動）") + "</span>";
+      out += '<span class="prev">弱点比（5kV÷10kV）' +
+        (dangerOn(h) && !has(h.wrManual) ? "算出不可（5kVのみ）"
+          : (isNaN(wrr) ? "—" : fmt(wrr, 2) + (has(h.wrManual) ? "（手入力）" : "（自動）"))) + "</span>";
     }
     var jr = judgeHv(s, h, "v5");
     out += '<span class="ref">基準：' + esc(jr.ref) + "</span>";
@@ -1014,37 +1464,90 @@ function slotHtml(s, prev, key, mode) {
   }
   if (cat === "weak") {
     var es = s.hv.filter(function (x) { return x.method === "E" && x.place !== "sheath"; });
-    if (!es.length) return '<span class="ref"><b>弱点比</b> E方式の測定がありません</span>';
-    var ws = es.map(function (x) {
-      var wr = weakRatio(s, x);
-      return esc(x.side) + "：" + (isNaN(wr) ? "—" : fmt(wr, 2) +
-        (wr >= CRITERIA.hv.busE.weakRatio ? "（" + CRITERIA.hv.busE.weakRatio + "以上）" : "") +
-        (has(x.wrManual) ? "（手入力）" : ""));
-    });
-    return '<span class="ref"><b>弱点比（5kV÷10kV）</b> ' + ws.join(" ／ ") + "</span>";
+    if (!es.length) return '<div class="wnone">E方式の測定がありません</div>';
+    var D = CRITERIA.hv.weakDisplay;
+    return es.map(function (x) {
+      var wr = weakRatio(s, x), cls = "", val, sub = "";
+      if (dangerOn(x) && !has(x.wrManual)) { cls = "na"; val = "算出不可"; sub = "危険ケーブル（5kVのみ）"; }
+      else if (isNaN(wr)) { cls = "na"; val = "—"; sub = "5kVと10kVの両方を入力"; }
+      else {
+        val = fmt(wr, 2);
+        if (wr >= D.ng) { cls = "ng"; sub = D.ng + "以上：弱点あり"; }
+        else if (wr >= D.warn) { cls = "warn"; sub = D.warn + "以上：要観察"; }
+      }
+      return '<div class="wcell ' + cls + '">' +
+        '<div class="wside">' + esc(x.side) + ' <span class="wplace">' + esc(placeLabel(x.place)) + "</span></div>" +
+        '<div class="wnum">' + val + (has(x.wrManual) ? '<span class="wtag">手入力</span>' : "") + "</div>" +
+        (sub ? '<div class="wsub">' + esc(sub) + "</div>" : "") +
+        "</div>";
+    }).join("");
   }
   if (cat === "relay") {
     var r2 = s.relays.filter(function (x) { return x.id === id; })[0]; if (!r2) return "";
-    var items = relayItems(r2);
+    var rkind = testKind(s), rst = relayStore(r2, rkind);
+    // 整定値の200%値（表示専用。保存はしない）
+    if (sub && sub.indexOf("x2.") === 0) {
+      var base = num(pick(rst.s, sub.slice(3)));
+      if (isNaN(base)) return "";
+      return ocrPct() + "% = " + ocrX2(base) + "A";
+    }
+    // 竣工OCR：整定値欄の直下に各%の試験電流を一覧表示
+    if (sub && sub.indexOf("steps.") === 0) {
+      var sk = sub.slice(6), sbase = num(pick(rst.s, sk)), KS = RC(r2.type, rkind);
+      if (isNaN(sbase) || !KS.stepsRef) return "";
+      return KS.stepsRef.map(function (p) { return p + "% = " + stepAmp(sbase, p) + "A"; }).join(" ／ ");
+    }
+    // 表の行見出しに出す試験電流（amp.<整定キー>.<%>）
+    if (sub && sub.indexOf("amp.") === 0) {
+      var ap = sub.split("."), ab = num(pick(rst.s, ap[1]));
+      return isNaN(ab) ? "" : stepAmp(ab, Number(ap[2])) + "A";
+    }
+    // 測定項目のラベル。200%値は測定入力欄の側にも赤字で出す
+    if (sub && sub.indexOf("lb.") === 0) {
+      var lk = sub.slice(3);
+      var li = relayItems(r2, rkind).filter(function (x) { return x.key === lk; })[0];
+      if (!li) return "";
+      var lo = esc(li.label);
+      if (li.x2key) {
+        var bv = num(pick(rst.s, li.x2key));
+        lo += '<span class="x2i">整定' + ocrPct() + "% = " + (isNaN(bv) ? "—" : ocrX2(bv)) + "A で試験</span>";
+      }
+      return lo;
+    }
+    var items = relayItems(r2, rkind);
     // 相付き（key末尾がR/T）のセルか、項目全体か
-    var base = sub, phase = "";
+    var base = sub, phase = "", cellJudge = null;
     var it = null;
     for (var i = 0; i < items.length; i++) {
       if (items[i].key === sub) { it = items[i]; break; }
-      if (items[i].phases && (items[i].key + "R" === sub || items[i].key + "T" === sub)) { it = items[i]; phase = sub.slice(-1); base = items[i].key; break; }
+      if (items[i].phases && (items[i].key + "R" === sub || items[i].key + "T" === sub)) {
+        it = items[i]; phase = sub.slice(-1); base = items[i].key; break;
+      }
+      if (items[i].type === "grid") {   // 表のセル：key + 列 + 行 + 相
+        var g = items[i], hit = null;
+        g.cols.forEach(function (c) {
+          g.rows.forEach(function (row) {
+            ["R", "T"].forEach(function (p) {
+              if (g.key + c.k + row.k + p === sub) hit = c;
+            });
+          });
+        });
+        if (hit) { it = g; phase = sub.slice(-1); base = sub.slice(0, -1); cellJudge = hit.judge || null; break; }
+      }
     }
     if (!it) return "";
     if (phase) {
-      var v = num(pick(r2.m || {}, base + phase));
-      return badge(it.judge ? it.judge(v) : "na");
+      var v = num(pick(rst.m, base + phase));
+      var jf = cellJudge || (it.type === "grid" ? null : it.judge);
+      return jf ? badge(jf(v)) : "";
     }
     if (mode === "ref") return "基準：" + it.ref;   // 見出し下の基準テキスト
     if (it.type === "select") {
-      var cv = pick(r2.m || {}, it.key);
+      var cv = pick(rst.m, it.key);
       return badge(it.judgeStr ? it.judgeStr(cv) : "na") + (mode === "mini" ? "" : '<span class="ref">' + esc(it.ref) + "</span>");
     }
-    if (it.phases) return mode === "mini" ? "" : '<span class="ref">' + it.ref + "</span>";
-    var v2 = num(pick(r2.m || {}, it.key));
+    if (it.phases || it.type === "grid") return mode === "mini" ? "" : '<span class="ref">' + it.ref + "</span>";
+    var v2 = num(pick(rst.m, it.key));
     return badge(it.judge ? it.judge(v2) : "na") + (mode === "mini" ? "" : '<span class="ref">' + it.ref + "</span>");
   }
   return "";
@@ -1116,8 +1619,8 @@ function viewRef() {
       "<li>R相に流す → <b>R・S に流れ、T には流れない</b>こと。</li>" +
       "<li>T相に流す → <b>S・T に流れ、R には流れない</b>こと。</li></ul>" +
       "<p>標準配線がない場合は、アース線＋圧着端子で渡り線を自作する。露出部はビニルテープで確実に絶縁すること。</p>" +
-      "<p><b>判定</b>：限時＝整定±" + CRITERIA.relay.OCR.limTol + "%、瞬時＝整定±" + CRITERIA.relay.OCR.instTol + "%。" +
-      "瞬時動作時間は 連動 " + CRITERIA.relay.OCR.instTime["連動"] + "s以内（0.05s＋遮断器3サイクル）／単体 " + CRITERIA.relay.OCR.instTime["単体"] + "s以内。</p>") +
+      "<p><b>判定</b>：限時＝整定±" + CRITERIA.relay.OCR["年次点検"].limTol + "%、瞬時＝整定±" + CRITERIA.relay.OCR["年次点検"].instTol + "%。" +
+      "瞬時動作時間は 連動 " + CRITERIA.relay.OCR["年次点検"].instTime["連動"] + "s以内（0.05s＋遮断器3サイクル）／単体 " + CRITERIA.relay.OCR["年次点検"].instTime["単体"] + "s以内。</p>") +
 
     R("ref-ovr", "OVR / UVR / OVGR 結線",
       "<p>P1・P2 に電圧要素と補助電源、警報接点にトリップ線 — <b>計4本</b>。</p>" +
@@ -1151,6 +1654,9 @@ function viewRef() {
       "電源側は電源側の5kV/10kVで、負荷側は負荷側の5kV/10kVで取る。" +
       "印加電圧を上げたときの落ち込みが大きいほど絶縁の弱点が疑われ、<b>3以上で要注意</b>。" +
       "行を開いて弱点比を手入力すれば、そちらが判定に優先される。</p>" +
+      '<div class="warnbox"><b>危険ケーブル</b>には5kVを超える電圧を印加してはならない。' +
+      "該当する行は詳細を開いて「危険ケーブル」にチェックすると、10kV欄が入力不可になり、判定は5kV値のみで行われる。" +
+      "弱点比は10kVを測れないため算出不可となる。既に10kV値を入力済みの行にチェックを入れた場合、値は記録として保持したまま判定と弱点比からのみ除外する。</div>" +
       "<p>リーク音・キック現象があれば数値によらず<b>不良</b>。</p>") +
 
     R("ref-earth", "接地抵抗計 / アースチェッカー / クランプ",
@@ -1160,11 +1666,12 @@ function viewRef() {
       "<p><b>クランプリークメータ</b>：B種接地線でIo（全漏えい）とIgr（抵抗分）を測る。低圧電路の漏えい電流は1mA以下が基準。</p>" +
       "<p><b>短絡検知器</b>：<b>接地線を先に付け、外すときは印加線を先に外す</b>。</p>" +
       '<table class="tbl"><tr><th>種別</th><th>基準</th></tr>' +
-      "<tr><td>A種／PAS／LA</td><td>10Ω以下</td></tr>" +
+      "<tr><td>A種／PAS／LA</td><td>" + CRITERIA.ground.A + "Ω以下</td></tr>" +
       "<tr><td>B種</td><td>150 / 300 / 600 ÷ 1線地絡電流 [Ω] 以下</td></tr>" +
-      "<tr><td>C種</td><td>10Ω以下（0.5秒以内遮断なら500Ω以下）</td></tr>" +
-      "<tr><td>D種</td><td>100Ω以下（0.5秒以内遮断なら500Ω以下）</td></tr>" +
-      "<tr><td>鉄骨・補助極</td><td>判定なし（補助極は1000Ω以下が望ましい）</td></tr></table>") +
+      "<tr><td>C種</td><td>" + CRITERIA.ground.C + "Ω以下（0.5秒以内遮断なら" + CRITERIA.ground.fastBreak + "Ω以下）</td></tr>" +
+      "<tr><td>D種</td><td>" + CRITERIA.ground.D + "Ω以下（0.5秒以内遮断なら" + CRITERIA.ground.fastBreak + "Ω以下）</td></tr>" +
+      "<tr><td>D種(ELB)</td><td>" + CRITERIA.ground.elb + "Ω以下（漏電遮断器付きの緩和値）</td></tr>" +
+      "<tr><td>補助極(P)・補助極(C)・鉄骨</td><td>判定対象外＝参考値（補助極は" + CRITERIA.ground.aux + "Ω以下が望ましい）</td></tr></table>") +
 
     R("ref-ctvt", "CT / VT の禁止事項",
       '<div class="warnbox"><b>CT二次側 開放厳禁</b> — 開放すると二次側に高電圧が誘起し、絶縁破壊・感電に至る。CTTを外すときは必ず短絡状態を保つ。</div>' +
@@ -1172,17 +1679,64 @@ function viewRef() {
       "<p>CTTの操作は「短絡してから外す・つないでから短絡を解く」を徹底する。</p>") +
 
     R("ref-lgr", "LGR / 漏電火災警報器",
-      "<p>整定は一般に <b>" + CRITERIA.relay.LGR.typicalSet + "mA</b>。実測では <b>" + CRITERIA.relay.LGR.actualFrom + "mA 程度から動作域</b>に入るのが目安。</p>" +
+      "<p>整定は一般に <b>" + CRITERIA.relay.LGR["年次点検"].typicalSet + "mA</b>。実測では <b>" + CRITERIA.relay.LGR["年次点検"].actualFrom + "mA 程度から動作域</b>に入るのが目安。</p>" +
       "<p>トランス内部点検とは<b>3年周期で交互に実施</b>する運用が一般的。実施年はメモ欄に残す。</p>") +
+
+    R("ref-shunko", "竣工試験の様式（試験記録雛形）",
+      "<p>現場詳細の<b>試験種別</b>を「竣工試験」にすると、継電器タブが試験記録雛形の様式に切り替わる。" +
+      "年次点検で入力した値と竣工試験で入力した値は<b>別々に保持</b>され、切り替えても消えない。</p>" +
+      "<p><b>4様式に共通する欄</b>：回路名（デバイスNo.）／製造者・製造年・型式・製造番号／トリップテスト／動作表示／外観点検／警報装置（現場・遠方）／総合判定。判定は ○＝良・×＝不良。</p>" +
+      "<h4>OCR（判定基準 JIS C 4602）</h4>" +
+      '<table class="tbl"><tr><th>項目</th><th>測定する%</th><th>判定</th></tr>' +
+      "<tr><td>限時 最小動作電流</td><td>—</td><td>整定 ±" + RC("OCR", "竣工試験").limTol + "%</td></tr>" +
+      "<tr><td>限時 単体 動作時間</td><td>150 / 200 / 300 / 500 / 700%</td><td>記録のみ</td></tr>" +
+      "<tr><td>限時 CBとの連動</td><td>300% / 700%</td><td>記録のみ</td></tr>" +
+      "<tr><td>瞬時 最小動作電流</td><td>—</td><td>整定 ±" + RC("OCR", "竣工試験").instTol + "%</td></tr>" +
+      "<tr><td>瞬時 単体 動作時間</td><td>200%</td><td>" + RC("OCR", "竣工試験").instTimeMax + "秒以下</td></tr>" +
+      "<tr><td>瞬時 CBとの連動</td><td>200%</td><td>記録のみ</td></tr></table>" +
+      "<p>整定値を入れると <b>150 / 200 / 300 / 500 / 700% の試験電流</b>を自動計算して表示する（例：整定4A → 300%=12.0A）。" +
+      "公称動作時間 T10.3（ダイヤル10・当該%）を入力すると、ダイヤルDでの<b>期待値 (D/10)×T10.3</b> を計算補助として併記する。" +
+      "誤差率による自動判定は行わない。</p>" +
+      "<h4>OVGR（メーカー管理値）</h4>" +
+      '<table class="tbl"><tr><th>項目</th><th>判定</th></tr>' +
+      "<tr><td>動作電圧 動作値</td><td>整定 ±" + RC("OVGR", "竣工試験").vTol + "%</td></tr>" +
+      "<tr><td>動作電圧 復帰値</td><td>記録のみ（雛形に定めなし）</td></tr>" +
+      "<tr><td>動作時間（120% / 150%）</td><td>時限整定 ±" + RC("OVGR", "竣工試験").tTol + "%（最小誤差±" +
+        RC("OVGR", "竣工試験").tMinErrSec + "s）</td></tr></table>" +
+      "<p>年次点検の動作電圧 ±" + RC("OVGR", "年次点検").vTol + "%（社内基準）とは基準が異なる。</p>" +
+      "<h4>RPR（逆電力）／ UPR（不足電力）</h4>" +
+      '<table class="tbl"><tr><th></th><th>RPR</th><th>UPR</th></tr>' +
+      "<tr><td>測定する位相</td><td>+120° / +180° / −120°</td><td>+60° / 0° / −60°</td></tr>" +
+      "<tr><td>判定する位相</td><td>+180°</td><td>0°</td></tr>" +
+      "<tr><td>動作電流</td><td>基準値の95% ±5%</td><td>基準値の105% ±5%</td></tr>" +
+      "<tr><td>動作時間</td><td>整定 ±10%</td><td>整定 ±10%（最小誤差±50ms）</td></tr></table>" +
+      "<p>いずれも印加電圧110Vで、動作時間は<b>単体・連動</b>の2系統を記録する。" +
+      "判定に使う<b>動作電流の基準値[A]</b>（整定電力[%]からの換算値）は整定欄に手入力する。</p>" +
+      '<div class="warnbox">GR・DGR・OVR・UVR・LGR は竣工試験の記録雛形が無いため、' +
+      "試験種別を竣工試験にしても年次点検と同じ項目で表示する。</div>") +
 
     R("ref-criteria", "判定基準の一覧（アプリ内蔵値）",
       "<p>本アプリが自動判定に使う値です。基準改訂・社内ルール差異があれば <code>CRITERIA</code> を書き換えてください。</p>" +
       '<table class="tbl"><tr><th>項目</th><th>基準</th></tr>' +
-      "<tr><td>OCR 限時 最小動作電流</td><td>整定 ±" + CRITERIA.relay.OCR.limTol + "%</td></tr>" +
-      "<tr><td>OCR 瞬時 最小動作電流</td><td>整定 ±" + CRITERIA.relay.OCR.instTol + "%</td></tr>" +
-      "<tr><td>OCR 瞬時 動作時間</td><td>連動 " + CRITERIA.relay.OCR.instTime["連動"] + "s以内／単体 " + CRITERIA.relay.OCR.instTime["単体"] + "s以内</td></tr>" +
-      "<tr><td>GR/DGR 最小動作電流</td><td>整定 ±" + CRITERIA.relay.GR.iTol + "%</td></tr>" +
-      "<tr><td>DGR 最小動作電圧</td><td>整定 ±" + CRITERIA.relay.GR.vTol + "%</td></tr>" +
+      "<tr><td>接地 A種／PAS</td><td>" + CRITERIA.ground.A + "Ω以下（PASはA種と同じ基準）</td></tr>" +
+      "<tr><td>接地 D種(ELB)</td><td>" + CRITERIA.ground.elb + "Ω以下</td></tr>" +
+      "<tr><td>接地 補助極(P)(C)・鉄骨</td><td>判定対象外＝参考値（進捗の必須項目からも除外）</td></tr>" +
+      "<tr><td>高圧 弱点比</td><td>同一測定点の 5kV値÷10kV値。" + CRITERIA.hv.busE.weakRatio + "以上で要注意</td></tr>" +
+      "<tr><td>高圧 弱点比の強調表示</td><td>" + CRITERIA.hv.weakDisplay.warn + "以上=注意色／" +
+        CRITERIA.hv.weakDisplay.ng + "以上=赤（それ未満は通常色）</td></tr>" +
+      "<tr><td>高圧 危険ケーブル</td><td>5kVを超えて印加しない。10kV欄を入力不可にし、判定は5kV値のみ・弱点比は算出不可</td></tr>" +
+      "<tr><td>試験種別</td><td>年次点検＝社内基準／竣工試験＝試験記録雛形（JIS C 4602・メーカー管理値）。継電器の基準は <code>CRITERIA.relay[種別][試験種別]</code></td></tr>" +
+      "<tr><td>OCR 試験電流（年次）</td><td>整定値の " + ocrPct() + "%（倍率 " + CRITERIA.relay.OCR["年次点検"].testMultiplier + " 倍）</td></tr>" +
+      "<tr><td>OCR 試験電流（竣工）</td><td>限時 単体 150 / 200 / 300 / 500 / 700%、CB連動 300 / 700%、瞬時 200%</td></tr>" +
+      "<tr><td>OCR 動作時間（竣工）</td><td>記録のみ（期待値 (D/10)×T10.3 を併記、誤差率判定なし）</td></tr>" +
+      "<tr><td>OVGR 動作電圧</td><td>年次 ±" + RC("OVGR", "年次点検").vTol + "% ／ 竣工 ±" + RC("OVGR", "竣工試験").vTol + "%</td></tr>" +
+      "<tr><td>RPR 動作電流</td><td>位相+" + RC("RPR", "竣工試験").judgePhase + "°で基準値の" + RC("RPR", "竣工試験").basePct + "% ±" + RC("RPR", "竣工試験").opTol + "%</td></tr>" +
+      "<tr><td>UPR 動作電流</td><td>位相" + RC("UPR", "竣工試験").judgePhase + "°で基準値の" + RC("UPR", "竣工試験").basePct + "% ±" + RC("UPR", "竣工試験").opTol + "%</td></tr>" +
+      "<tr><td>OCR 限時 最小動作電流</td><td>整定 ±" + CRITERIA.relay.OCR["年次点検"].limTol + "%</td></tr>" +
+      "<tr><td>OCR 瞬時 最小動作電流</td><td>整定 ±" + CRITERIA.relay.OCR["年次点検"].instTol + "%</td></tr>" +
+      "<tr><td>OCR 瞬時 動作時間</td><td>連動 " + CRITERIA.relay.OCR["年次点検"].instTime["連動"] + "s以内／単体 " + CRITERIA.relay.OCR["年次点検"].instTime["単体"] + "s以内</td></tr>" +
+      "<tr><td>GR/DGR 最小動作電流</td><td>整定 ±" + CRITERIA.relay.GR["年次点検"].iTol + "%</td></tr>" +
+      "<tr><td>DGR 最小動作電圧</td><td>整定 ±" + CRITERIA.relay.GR["年次点検"].vTol + "%</td></tr>" +
       "<tr><td>GR/DGR 動作時間（整定130%）</td><td>単体 0.1〜0.3s／連動 0.1〜0.4s</td></tr>" +
       "<tr><td>GR/DGR 慣性不動作</td><td>400%×0.05s で不動作なら合格</td></tr>" +
       "<tr><td>OVR</td><td>動作±5% / 復帰95%以上 / 時間±10%</td></tr>" +
@@ -1224,7 +1778,7 @@ function viewSettings() {
 /* =========================================================================
    9. テキスト書き出し
    ========================================================================= */
-function statusLabel(s) { return { ok: "良", warn: "要注意", ng: "不良", na: "—" }[s] || "—"; }
+function statusLabel(s) { return { ok: "良", warn: "要注意", ng: "不良", na: "—", ref: "参考値" }[s] || "—"; }
 function siteToText(s) {
   var L = [];
   L.push("■ " + (s.name || "（無題の現場）"));
@@ -1242,38 +1796,41 @@ function siteToText(s) {
     L.push(""); L.push("【高圧絶縁抵抗】");
     s.hv.forEach(function (r) {
       var head = "・" + placeLabel(r.place) + " " + r.method + "方式 " + r.side + " 3線一括 : ";
-      var ws = r.method === "E" ? ["v5", "v10"] : ["v5"];
+      var ws = hvSteps(r);   // 危険ケーブルは5kVのみ
       var parts = ws.map(function (w) {
         var j = judgeHv(s, r, w), v = hvVal(r, w);
         return (r.method === "E" ? hvKvLabel(w) + " " : "") +
           (v === "" || v === undefined ? "未測定" : v + (r.unit || "")) + " [" + statusLabel(j.s) + "]";
       });
       var wr = (r.method === "E" && r.place !== "sheath") ? weakRatio(s, r) : NaN;
-      L.push(head + parts.join(" / ") + (isNaN(wr) ? "" : " 弱点比" + fmt(wr, 2)) +
+      L.push(head + parts.join(" / ") +
+        (dangerOn(r) ? " ※危険ケーブル（5kVのみ・弱点比算出不可）" + (has(r.v10) ? "／10kV記録値 " + r.v10 + (r.unit || "") + "（判定除外）" : "") : "") +
+        (isNaN(wr) ? "" : " 弱点比" + fmt(wr, 2)) +
         (r.leak ? " ※リーク音・キックあり" : "") + (r.note ? " / " + r.note : ""));
     });
   }
   if (s.relays.length) {
-    L.push(""); L.push("【継電器試験】");
+    var kind = testKind(s);
+    L.push(""); L.push("【継電器試験】（" + kind + "）");
     s.relays.forEach(function (r) {
       L.push("◆ " + relayTitle(r.type) + (r.label ? "（" + r.label + "）" : ""));
-      var sf = relaySettingFields(r.type).map(function (f) {
-        var v = pick(r.s || {}, f.k); return (v === undefined || v === "") ? null : f.l + "=" + v;
+      var sf = relaySettingFields(r.type, kind).map(function (f) {
+        var v = pick(relayStore(r, kind).s, f.k); return (v === undefined || v === "") ? null : f.l + "=" + v;
       }).filter(Boolean);
       if (sf.length) L.push("  整定: " + sf.join(" / "));
-      relayItems(r).forEach(function (it) {
+      relayItems(r, kind).forEach(function (it) {
         if (it.phases) {
           ["R", "T"].forEach(function (p) {
-            var v = pick(r.m || {}, it.key + p);
+            var v = pick(relayStore(r, kind).m, it.key + p);
             L.push("  " + it.label + " " + p + "相: " + (v === undefined || v === "" ? "未測定" : v) +
               "  [" + statusLabel(it.judge(num(v))) + "]");
           });
           L.push("    基準: " + it.ref);
         } else if (it.type === "select") {
-          var cv = pick(r.m || {}, it.key);
+          var cv = pick(relayStore(r, kind).m, it.key);
           L.push("  " + it.label + ": " + (cv || "未実施") + "  [" + statusLabel(it.judgeStr(cv)) + "] 基準: " + it.ref);
         } else {
-          var v2 = pick(r.m || {}, it.key);
+          var v2 = pick(relayStore(r, kind).m, it.key);
           L.push("  " + it.label + ": " + (v2 === undefined || v2 === "" ? "未測定" : v2) +
             "  [" + statusLabel(it.judge(num(v2))) + "] 基準: " + it.ref);
         }
@@ -1319,6 +1876,8 @@ function openNewSite() {
     '<div class="field"><label>現場名</label><input class="in" id="nsName" placeholder="○○ビル キュービクル"></div>' +
     '<div class="row"><div class="field"><label>点検日</label><input class="in" type="date" id="nsDate" value="' + today() + '"></div>' +
     '<div class="field"><label>種別</label><select id="nsType">' + SITE_TYPES.map(function (t) { return "<option" + (t === "年次" ? " selected" : "") + ">" + t + "</option>"; }).join("") + "</select></div></div>" +
+    '<div class="field"><label>試験種別（継電器タブの様式が切り替わります）</label><select id="nsKind">' +
+      TEST_KINDS.map(function (k) { return "<option>" + k + "</option>"; }).join("") + "</select></div>" +
     '<div class="field"><label>受電電圧</label><input class="in" id="nsVolt" value="6600V"></div>' +
     (opts ? '<div class="field"><label>既存現場から項目・整定値を引き継ぐ（任意）</label><select id="nsCopy"><option value="">引き継がない</option>' + opts + "</select></div>" : "") +
     '<div class="btnrow"><button class="btn" id="nsCancel">キャンセル</button><button class="btn primary" id="nsOk">作成</button></div>');
@@ -1327,6 +1886,7 @@ function openNewSite() {
     var s = newSite(m.querySelector("#nsName").value.trim());
     s.date = m.querySelector("#nsDate").value || today();
     s.type = m.querySelector("#nsType").value;
+    s.testKind = m.querySelector("#nsKind").value;
     s.voltage = m.querySelector("#nsVolt").value;
     var cid = m.querySelector("#nsCopy") ? m.querySelector("#nsCopy").value : "";
     if (cid) {
@@ -1335,7 +1895,11 @@ function openNewSite() {
         s.ground = src.ground.map(function (r) { var c = JSON.parse(JSON.stringify(r)); c.id = uid(); c.value = ""; c.gv = ""; c.note = ""; return c; });
         s.hv = src.hv.map(function (r) { var c = JSON.parse(JSON.stringify(r)); c.id = uid(); c.value = ""; c.v10 = ""; c.leak = false; c.wrManual = ""; c.note = ""; return c; });
         s.lv = src.lv.map(function (r) { var c = JSON.parse(JSON.stringify(r)); c.id = uid(); c.ir = ""; c.leak = ""; c.note = ""; return c; });
-        s.relays = src.relays.map(function (r) { var c = JSON.parse(JSON.stringify(r)); c.id = uid(); c.m = {}; return c; });
+        s.relays = src.relays.map(function (r) {
+          var c = JSON.parse(JSON.stringify(r)); c.id = uid();
+          TEST_KINDS.forEach(function (k) { relayStore(c, k).m = {}; });  // 整定値は引き継ぎ、測定値だけ空にする
+          return c;
+        });
         if (!s.name) s.name = src.name;
       }
     }
@@ -1440,7 +2004,9 @@ function setBind(path, value) {
   }
   else if (p[0] === "relay") {
     var r = s.relays.filter(function (x) { return x.id === p[1]; })[0]; if (!r) return;
-    put(r, p[2], value);
+    // s./m. は試験種別ごとの領域へ、それ以外（label・note）は種別共通で継電器本体へ
+    if (/^[sm]\./.test(p[2])) put(relayStore(r, testKind(s)), p[2], value);
+    else put(r, p[2], value);
   } else {
     var arr = s[p[0] === "ground" ? "ground" : p[0]];
     var row = arr.filter(function (x) { return x.id === p[1]; })[0]; if (!row) return;
@@ -1463,7 +2029,8 @@ document.addEventListener("change", function (e) {
   setBind(t.dataset.bind, t.type === "checkbox" ? t.checked : t.value);
   // select変更で表示項目自体が変わるものは再描画
   var b = t.dataset.bind;
-  if (/:(kind|place|method|side|unit|cls|type)$/.test(b) || /:s\.link$/.test(b) || b === "site:type") render();
+  if (/:(kind|place|method|side|unit|danger|cls|type)$/.test(b) || /:s\.link$/.test(b) ||
+      b === "site:type" || b === "site:testKind") render();
   else refreshJudge();
 });
 document.addEventListener("click", function (e) {
@@ -1502,7 +2069,7 @@ document.addEventListener("click", function (e) {
   if (!s) return;
   if (act === "add") {
     var c = b.dataset.cat;
-    if (c === "ground") s.ground.push({ id: uid(), name: "", kind: "A", value: "", method: "3極法", gv: "", note: "", fast: false, bCap: "", bBaseLabel: "", bBase: "", bIg: "", bManual: "" });
+    if (c === "ground") s.ground.push(newGround("", "A"));
     if (c === "hv") s.hv.push(newHv("cable", "E", "電源側"));
     if (c === "lv") s.lv.push({ id: uid(), name: "", cls: "150V以下", ir: "", leak: "", note: "" });
     save(); render(); return;
@@ -1514,9 +2081,7 @@ document.addEventListener("click", function (e) {
     save(); render(); return;
   }
   if (act === "tmpl-ground") {
-    GROUND_TEMPLATE.forEach(function (t) {
-      s.ground.push({ id: uid(), name: t.name, kind: t.kind, value: "", method: "3極法", gv: "", note: "", fast: false, bCap: "", bBaseLabel: "", bBase: "", bIg: "", bManual: "" });
-    });
+    defaultGround().forEach(function (g) { s.ground.push(g); });
     save(); render(); return;
   }
   if (act === "tmpl-hv") {
@@ -1530,7 +2095,7 @@ document.addEventListener("click", function (e) {
   }
   if (act === "addrelay") {
     var sel = document.getElementById("relayAdd"); if (!sel) return;
-    s.relays.push({ id: uid(), type: sel.value, label: "", s: {}, m: {}, note: "" });
+    s.relays.push(newRelay(sel.value));
     save(); render(); return;
   }
   if (act === "loadpreset") {
@@ -1539,9 +2104,10 @@ document.addEventListener("click", function (e) {
     if (!p) { toast("同じ現場名の過去記録がありません"); return; }
     var src = p.relays.filter(function (x) { return x.type === r.type; })[0];
     if (!src) { toast("前回に同じ種別の継電器がありません"); return; }
-    r.s = JSON.parse(JSON.stringify(src.s || {}));
+    var k = testKind(s);
+    relayStore(r, k).s = JSON.parse(JSON.stringify(relayStore(src, k).s));
     if (!r.label) r.label = src.label || "";
-    save(); render(); toast("前回（" + p.date + "）の整定値を読み込みました"); return;
+    save(); render(); toast("前回（" + p.date + "）" + k + "の整定値を読み込みました"); return;
   }
 });
 

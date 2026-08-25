@@ -1,6 +1,6 @@
 /* 保安管理 点検記録 — Service Worker
    キャッシュ優先（オフライン完全動作）。更新時は CACHE の版数を上げる。 */
-const CACHE = 'hoan-v1';
+const CACHE = 'hoan-v2';
 const ASSETS = ['./', './index.html', './manifest.json'];
 
 self.addEventListener('install', (e) => {
