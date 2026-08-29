@@ -455,9 +455,10 @@ function newHv(place, method, side) {
   return { id: uid(), place: place, method: method, side: side, value: "", v10: "", unit: "GΩ",
            leak: false, danger: false, wrManual: "", note: "" };
 }
-/* 高圧絶縁の標準3測定（負荷側E → 電源側G → 電源側E の順） */
+/* 高圧絶縁の標準3測定（負荷側E → 電源側G → 電源側E の順）。
+   電源側で測っているのは機器・母線なので、判定は「母線・機器」の基準を使う */
 function defaultHv() {
-  return [newHv("bus", "E", "負荷側"), newHv("cable", "G", "電源側"), newHv("cable", "E", "電源側")];
+  return [newHv("bus", "E", "負荷側"), newHv("bus", "G", "電源側"), newHv("bus", "E", "電源側")];
 }
 /* B種接地線のクランプ測定（Igr）。電灯・動力トランス別に行を足せる */
 function newClamp(name) { return { id: uid(), name: name || "", io: "", igr: "", note: "" }; }
@@ -638,7 +639,9 @@ function judgeHv(s, r, w) {
   if (isNaN(g)) return { s: "na", ref: refB, wr: wr };
   if (g >= C.busE.ok) return { s: "ok", ref: refB, wr: wr };
   if (g < C.busE.ng) return { s: "ng", ref: refB, wr: wr };
-  if (isNaN(wr)) return { s: "warn", ref: refB, wr: wr, note: "弱点比が未算出（5kVと10kVの両方を入力）" };
+  if (isNaN(wr)) return { s: "warn", ref: refB, wr: wr,
+    note: (r.method === "G" || dangerOn(r)) ? "弱点比は算出できない測定（5kVのみ）"
+                                            : "弱点比が未算出（5kVと10kVの両方を入力）" };
   return { s: wr < C.busE.weakRatio ? "ok" : "warn", ref: refB, wr: wr };
 }
 /* G方式と危険ケーブルは5kVの1点、それ以外のE方式は5kV/10kVの重い方を総合判定とする */
@@ -1437,6 +1440,7 @@ function slotHtml(s, prev, key, mode) {
     }
     var jr = judgeHv(s, h, "v5");
     out += '<span class="ref">基準：' + esc(jr.ref) + "</span>";
+    if (jr.note) out += '<span class="prev">⚠ ' + esc(jr.note) + "</span>";
     if (prev) {
       var mt = prev.hv.filter(function (x) { return hvGroupKey(x) === hvGroupKey(h); })[0];
       if (mt && has(mt.value)) out += prevLine(mt.value + (mt.unit || ""), "") +
